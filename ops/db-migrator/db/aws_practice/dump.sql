@@ -102,6 +102,7 @@ ALTER TABLE ONLY public.aws_test ALTER COLUMN id SET DEFAULT nextval('public.aws
 --
 
 COPY public.aws_test (id, test_text, created_at, updated_at) FROM stdin;
+1	テストデータ1	2025-04-18 12:45:31.141118	2025-04-18 12:45:31.141118
 \.
 
 
@@ -118,7 +119,7 @@ COPY public.schema_migrations (version, dirty) FROM stdin;
 -- Name: aws_test_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.aws_test_id_seq', 1, false);
+SELECT pg_catalog.setval('public.aws_test_id_seq', 1, true);
 
 
 --
