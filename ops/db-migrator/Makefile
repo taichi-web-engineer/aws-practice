@@ -4,20 +4,20 @@ include $(ROOT_DIR)/Makefile
 
 # migrationファイルを生成する。
 # e.g.
-# make new DB=slack_metrics NAME=create_workspaces
-# make new DB=slack_metrics NAME=add_column_xxxx_to_workspaces
+# make new DB=aws_practice NAME=create_workspaces
+# make new DB=aws_practice NAME=add_column_xxxx_to_workspaces
 new: .check-db .check-name
 	migrate create -ext sql -dir db/$(DB)/migrations $(NAME)
 
 # マイグレーションを適用する。
 # e.g.
-# make up DB=slack_metrics
+# make up DB=aws_practice
 up: .check-db
 	MODE=up TARGET_DB=$(DB) go run main.go
 
 # マイグレーションをロールバックする
 # e.g.
-# make down DB=slack_metrics
+# make down DB=aws_practice
 down: .check-db
 	MODE=down TARGET_DB=$(DB) go run main.go
 
@@ -25,13 +25,13 @@ down: .check-db
 
 # ダンプファイルを作成する。
 # e.g.
-# make dump DB=slack_metrics
+# make dump DB=aws_practice
 dump: .check-db
 	docker compose exec db pg_dump --create -U postgres -d $(DB) > db/$(DB)/dump.sql
 
 # dumpファイルからseedデータを復元する。
 # e.g.
-# make restore DB=slack_metrics
+# make restore DB=aws_practice
 restore: .check-db
 	docker compose exec -T db psql -U postgres -d $(DB) -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 	docker compose exec -T db psql -U postgres -d $(DB) < db/$(DB)/dump.sql

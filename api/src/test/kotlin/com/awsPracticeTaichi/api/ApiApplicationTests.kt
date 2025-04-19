@@ -10,6 +10,4 @@ class ApiApplicationTests {
     @Suppress("EmptyFunctionBlock")
     fun contextLoads() {
     }
-
-
 }
