@@ -1,4 +1,4 @@
-package com.aws_practice_taichi.api.infra.entity.db
+package com.awsPracticeTaichi.api.infra.entity.db
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

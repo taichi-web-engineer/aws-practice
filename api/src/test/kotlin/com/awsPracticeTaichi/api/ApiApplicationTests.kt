@@ -1,4 +1,4 @@
-package com.aws_practice_taichi.api
+package com.awsPracticeTaichi.api
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class ApiApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
-
+    @Test
+    @Suppress("EmptyFunctionBlock")
+    fun contextLoads() {
+    }
 }

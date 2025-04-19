@@ -1,6 +1,6 @@
-package com.aws_practice_taichi.api.presentation
+package com.awsPracticeTaichi.api.presentation
 
-import com.aws_practice_taichi.api.usecase.ApiUsecase
+import com.awsPracticeTaichi.api.usecase.ApiUsecase
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

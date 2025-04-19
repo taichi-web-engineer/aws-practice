@@ -1,6 +1,6 @@
-package com.aws_practice_taichi.api.usecase
+package com.awsPracticeTaichi.api.usecase
 
-import com.aws_practice_taichi.api.infra.repository.db.AwsTestRepository
+import com.awsPracticeTaichi.api.infra.repository.db.AwsTestRepository
 import org.springframework.stereotype.Component
 
 @Component
