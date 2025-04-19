@@ -13,5 +13,3 @@ data class AwsTest(
     var id: Int,
     var testText: String
 )
-
-
