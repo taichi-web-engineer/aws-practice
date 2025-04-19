@@ -10,6 +10,6 @@ import jakarta.persistence.Table
 @Table(name = "aws_test")
 data class AwsTest(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int,
+    var id: Int, 
     var testText: String
 )
