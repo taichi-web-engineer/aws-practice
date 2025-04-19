@@ -1,8 +1,0 @@
-config:
-  validation: true
-  warningsAsErrors: false
-  excludes: ''
-
-performance:
-  SpreadOperator:
-    active: false
