@@ -1,0 +1,15 @@
+# 基本的にすべてを除外
+*
+
+# ビルドに必要なもののみ含める
+!src/
+!build.gradle.kts
+!settings.gradle.kts
+!gradlew
+!gradle/
+
+# 開発用・テスト用ファイルは明示的に除外
+**/*.md
+**/.git*
+**/test/
+**/docs/
