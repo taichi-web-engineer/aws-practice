@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class ApiApplication
 
 fun main(args: Array<String>) {
+    // ossfテスト
     runApplication<ApiApplication>(*args)
 }
