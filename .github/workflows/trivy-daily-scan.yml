@@ -19,7 +19,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./api
           push: false
           load: true
           tags: api:${{ github.sha }}
