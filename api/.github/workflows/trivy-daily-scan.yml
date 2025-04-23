@@ -1,0 +1,79 @@
+name: Daily Trivy Container Scan
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 毎日0時に実行
+  workflow_dispatch:  # 手動実行もできるようにする
+
+jobs:
+  scan:
+    name: Scan Docker Container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          load: true
+          tags: api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Cache Trivy vulnerability database
+        uses: actions/cache@v3
+        with:
+          path: .trivycache/
+          key: ${{ runner.os }}-trivy-${{ hashFiles('**/Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'api:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM,ROW'
+          exit-code: '0'  # スキャン結果に関わらずワークフローが続行されるように
+          cache-dir: .trivycache
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Send notification if vulnerabilities found
+        if: ${{ steps.scan.outputs.sarif != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const sarif = JSON.parse(fs.readFileSync('trivy-results.sarif', 'utf8'));
+            
+            if (sarif.runs[0].results.length > 0) {
+              const issueBody = `## 🚨 脆弱性スキャン結果アラート
+              
+              Trivyによる定期スキャンで脆弱性が検出されました。
+              
+              - 検出時刻: ${new Date().toISOString()}
+              - 検出数: ${sarif.runs[0].results.length}
+              
+              詳細はSecurity Tabをご確認ください。`;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Security Alert] 脆弱性が検出されました - ${new Date().toISOString().split('T')[0]}`,
+                body: issueBody,
+                labels: ['security', 'trivy-scan']
+              });
+            }
