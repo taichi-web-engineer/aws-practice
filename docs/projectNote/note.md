@@ -414,7 +414,7 @@ fun main(args: Array<String>) {
 
 ```yml
   SpreadOperator:
-    active: true
+    active: false
 ```
 
 ついでに`detekt.yml`の`output-reports:`の部分で
