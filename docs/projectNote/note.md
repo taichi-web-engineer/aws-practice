@@ -417,14 +417,14 @@ fun main(args: Array<String>) {
     active: true
 ```
 
-ついでに`detekt.yml`の`output-reports:`の部分が
+ついでに`detekt.yml`の`output-reports:`の部分で
 
 ```
 スキーマ検証: タイプに互換性がありません。
 必須: array。 実際: null.
 ```
 
-というwarningを出してくるので空配列を設定してwarningを回避します。
+というwarningが出るので、空配列を設定してwarningを回避します。
 
 ```yml
   exclude: []
@@ -447,4 +447,4 @@ detektのフォーマットはよく使うので、私は`Ctrl + A`のショー�
 
 ![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)
 
-## detektの静的解析をcommit時に自動実行させる
+## detektの静的解析をcommit時に自動実行する
