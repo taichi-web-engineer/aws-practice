@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 @Component
 class ApiUsecase(private val awsTestRepo: AwsTestRepository) {
     fun getData(): List<String> {
-        // pre-commitテスト
         return awsTestRepo.findAll().map { it.testText }
     }
 }
