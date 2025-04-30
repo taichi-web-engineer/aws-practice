@@ -1,5 +1,7 @@
-# 現役エンジニアの実務レベルAWS Webアプリ環境構築
+# 実務レベルのKotlin、Spring Bootアプリ環境構築とDockerコンテナ化
 ![WebアプリのAWS構成](images/app_aws_architecture.png)
+
+エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
 本記事のゴールは上記AWS構成のWebアプリを作成することです。技術スタックは
 
