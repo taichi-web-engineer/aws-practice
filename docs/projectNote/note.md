@@ -210,6 +210,8 @@ Common Commands:
   ...
 ```
 
+Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
+
 ## DB環境構築
 `ops/db-migrator/README.md`をもとにDB環境構築をします。
 
@@ -448,3 +450,86 @@ detektのフォーマットはよく使うので、私は`Ctrl + A`のショー�
 ![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)
 
 ## detektの静的解析をcommit時に自動実行する
+`aws-practice/.githooks/pre-commit`にはcommit時にdetektのチェックおよびフォーマットをかけるスクリプトを書いています。commit時にdetektを実行すれば、フォーマットの整っていないコードがcommitされることはありません。
+
+スクリプトの内容は[detekt公式Docs](https://detekt.dev/docs/gettingstarted/git-pre-commit-hook/)をもとにしています。
+
+https://github.com/taichi-web-engineer/aws-practice/blob/main/.githooks/pre-commit
+
+このスクリプトがcommit時に自動実行されるよう設定をしましょう。
+
+`aws-practice`のディレクトリで`git config core.hooksPath .githooks`を実行し、gitにスクリプトの場所を教えます。次に`chmod +x .githooks/pre-commit`でスクリプトの実行権限を付与して準備完了です。
+
+適当なファイルに不要なスペースを入れてcommitすると、以下のようなエラーになってdetektのフォーマットも実行されます。
+
+```bash
+git commit -m "pre-commitテスト"
+Running detekt check...
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':detekt'.
+> Analysis failed with 1 weighted issues.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 436ms
+
+> Task :detekt FAILED
+/Users/taichi1/Desktop/application/aws-practice/api/src/main/kotlin/com/awsPracticeTaichi/api/usecase/ApiUsecase.kt:9:56: Unnecessary long whitespace [NoMultipleSpaces]
+
+1 actionable task: 1 executed
+***********************************************
+                 detekt failed                 
+ Please fix the above issues before committing 
+***********************************************
+```
+
+## アプリをDockerコンテナ化
+AWSのFargateでKotlin、Spring Bootアプリを動かすにはDockerコンテナ化する必要があります。Gensparnkスーパーエージェントで`Dockerfile`を作成しましょう。
+
+「kotlin、springbootアプリケーションをDockerコンテナ化するDockerfileのベストプラクティスを教えてください」というプロンプトでひな型を作成します。
+https://www.genspark.ai/agents?id=ce6d61d7-b89a-4f95-9da7-ddf923eeb6d5
+
+そしてAIとのやりとりを踏まえて修正、コメントを追記した完成版`Dockerfile`が以下です。`aws-practice/api/Dockerfile`として配置してください。
+https://github.com/taichi-web-engineer/aws-practice/blob/main/api/Dockerfile
+
+## Dockerコンテナでアプリを動かす動作確認
+Dockerコンテナで正常にアプリが動くか動作確認をしましょう。まず`aws-practice/api`ディレクトへ移動します。
+
+```bash
+cd api
+```
+
+OrbStackを起動し、Dockerイメージをビルドします。
+
+```bash
+docker build -t aws-practice-api .
+```
+
+Dockerでアプリを起動する前に[DBを立ち上げて](#db_exec)おかないと起動が失敗します。DB立ち上げ後、以下コマンドでDockerコンテナを起動しましょう。
+
+```bash
+docker run -p 8080:8080 \
+  -e DB_HOST=host.docker.internal \
+  -e DB_USERNAME=postgres \
+  -e DB_PASSWORD=postgres \
+aws-practice-api
+```
+
+`host.docker.internal`とはホストマシンのIPアドレスに名前解決されます。IntelliJでのアプリ起動時は`DB_HOST=localhost`で環境変数を設定しました。
+
+ですが今回アプリはDockerコンテナで動いているので、`DB_HOST=localhost`とするとアプリのDockerコンテナ自身を参照してDBにつなげません。なのでホストマシンで動いているDBに接続するため、`DB_HOST=host.docker.internal`としてホストマシンに名前解決をしているわけです。
+
+Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスするとIntelliJのアプリ起動時と同じ画面が表示されます。
+
+![APIのデータ取得成功画面](images/api_response_success.png)
+
+Dockerコンテナのアプリ停止は`Ctrl + C`です。
+
+## Dockerイメージの脆弱性チェック
