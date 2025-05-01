@@ -31,7 +31,7 @@ jobs:
 
       # 3) Trivy で脆弱性スキャン
       - name: Trivy scan (all severities, fail on ANY)
-        uses: aquasecurity/trivy-action@0.22.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: myapp:scan
           severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL   # 5 段階すべて
@@ -40,7 +40,7 @@ jobs:
       # 4) (任意) SARIF 形式で再実行し、Security tab にアップロード
       - name: Trivy scan (sarif)
         if: always()               # 成否に関わらず実行
-        uses: aquasecurity/trivy-action@0.22.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: myapp:scan
           format: sarif
