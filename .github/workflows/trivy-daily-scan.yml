@@ -1,48 +1,50 @@
-name: Weekly Trivy Container Scan
+name: Weekly Trivy Scan
+
+on:
+  workflow_dispatch: # 手動実行を可能にする
 
 on:
   schedule:
-    - cron: '0 15 * * 0'  # 毎週日曜UTC15時（日本時間0時）に実行
-  workflow_dispatch:  # 手動実行もできるようにする
-
-# 権限設定を追加
-permissions:
-  contents: read
-  security-events: write
+    # JST: 日曜 00:00 (= UTC: 土曜 15:00)
+    - cron: '0 15 * * 6'
 
 jobs:
-  scan:
-    name: Scan Docker Container
+  trivy-scan:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # 1) リポジトリを取得
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v4
+      # 2) Buildx でイメージをビルド（push しない）
+      - name: Build image
+        uses: docker/build-push-action@v5
         with:
           context: ./api
-          push: false
-          load: true
-          tags: aws-practice:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: true # ローカルにロード
+          tags: myapp:scan
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+      # 3) Trivy で脆弱性スキャン
+      - name: Trivy scan (all severities, fail on ANY)
+        uses: aquasecurity/trivy-action@0.22.0
         with:
-          scan-type: 'image'
-          image-ref: 'aws-practice:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
+          image-ref: myapp:scan
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL   # 5 段階すべて
+          exit-code: 1                                 # １件でも見つかればジョブ失敗
+          ignore-unfixed: true                         # パッケージ更新で解決しない脆弱性を無視
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      # 4) (任意) SARIF 形式で再実行し、Security tab にアップロード
+      - name: Trivy scan (sarif)
+        if: always()               # 成否に関わらず実行
+        uses: aquasecurity/trivy-action@0.22.0
+        with:
+          image-ref: myapp:scan
+          format: sarif
+          output: trivy-results.sarif
+
+      - name: Upload SARIF
         if: always()
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: trivy-results.sarif
