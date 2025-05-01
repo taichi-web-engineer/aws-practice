@@ -1,4 +1,4 @@
-name: Daily Trivy Container Scan
+name: Weekly Trivy Container Scan
 
 on:
   schedule:
