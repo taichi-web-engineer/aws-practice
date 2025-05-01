@@ -12,57 +12,51 @@ permissions:
   contents: read
   security-events: write
 
+
 jobs:
-  trivy-scan:
+  scan:
+    name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Build an image from Dockerfile
-        run: docker build -t aws-practice:${{ github.sha }} ./api
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t aws-practice-api:${{ github.sha }} ./api
+        # 注意: Dockerfileのパスが異なる場合は適宜変更してください
+        # 例: docker build -t my-docker-image:${{ github.sha }} -f ./path/to/Dockerfile .
+
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'aws-practice:${{ github.sha }}'
-          format: 'table'
-          exit-code: '1'
-          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
-    
-    # runs-on: ubuntu-latest
+          image-ref: 'aws-practice-api:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-    # steps:
-    #   # 1) リポジトリを取得
-    #   - name: Checkout
-    #     uses: actions/checkout@v4
-
-    #   # 2) Buildx でイメージをビルド（push しない）
-    #   - name: Build image
-    #     uses: docker/build-push-action@v5
-    #     with:
-    #       context: ./api
-    #       push: false
-    #       load: true
-    #       tags: aws-practice:${{ github.sha }}
-
-    #   # 3) Trivy で脆弱性スキャン
-    #   - name: Trivy scan (all severities, fail on ANY)
-    #     uses: aquasecurity/trivy-action@0.28.0
-    #     with:
-    #       image-ref: aws-practice:${{ github.sha }}
-    #       severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL   # 5 段階すべて
-    #       exit-code: 1                                 # １件でも見つかればジョブ失敗
-
-      # 4) (任意) SARIF 形式で再実行し、Security tab にアップロード
-      - name: Trivy scan (sarif)
-        if: always()               # 成否に関わらず実行
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          image-ref: 'aws-practice:${{ github.sha }}'
-          format: sarif
-          output: trivy-results.sarif
+          sarif_file: 'trivy-results.sarif'
 
-      - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Generate Trivy scan report
+        run: |
+          # HTMLレポート用のディレクトリを作成
+          mkdir -p trivy-reports
+          
+          # テキスト形式のレポートも生成
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ github.workspace }}:/tmp \
+            aquasec/trivy:latest \
+            image -f table -o /tmp/trivy-reports/report.txt my-docker-image:${{ github.sha }}
+          
+          echo "詳細なスキャン結果はレポートをご覧ください。"
+
+      - name: Archive vulnerability reports
+        uses: actions/upload-artifact@v3
         with:
-          sarif_file: trivy-results.sarif
+          name: trivy-vulnerability-reports
+          path: trivy-reports/
+          retention-days: 90
