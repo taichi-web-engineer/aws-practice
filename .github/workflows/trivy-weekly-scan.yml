@@ -20,6 +20,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Dockerイメージのビルド前にキャッシュをクリーンアップ（オプション）
+      - name: Clean Docker cache before build
+        run: |
+          docker system prune -af --volumes
+          echo "Docker environment cleaned before build"
+
       - name: Build Docker image
         run: |
           docker build -t aws-practice-api:${{ github.sha }} ./api
@@ -57,3 +63,16 @@ jobs:
           name: trivy-vulnerability-reports
           path: trivy-reports/
           retention-days: 90
+
+      - name: Clean up Docker images and cache
+        if: always()  # スキャンが成功しても失敗しても必ず実行
+        run: |
+          echo "Removing Docker image used for scanning"
+          docker rmi my-docker-image:${{ github.sha }} || true
+          
+          echo "Cleaning Docker cache"
+          docker system prune -af --volumes
+          
+          echo "Docker cleanup completed"
+          docker images
+          docker system df
