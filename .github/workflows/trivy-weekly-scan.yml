@@ -7,11 +7,10 @@ on:
 
   workflow_dispatch: # 手動実行を可能にする
 
-# 権限設定を追加
+# Securityタブ書き出しのための権限設定を追加
 permissions:
   contents: read
   security-events: write
-
 
 jobs:
   scan:
@@ -24,8 +23,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t aws-practice-api:${{ github.sha }} ./api
-        # 注意: Dockerfileのパスが異なる場合は適宜変更してください
-        # 例: docker build -t my-docker-image:${{ github.sha }} -f ./path/to/Dockerfile .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -55,7 +52,7 @@ jobs:
           echo "詳細なスキャン結果はレポートをご覧ください。"
 
       - name: Archive vulnerability reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-vulnerability-reports
           path: trivy-reports/
