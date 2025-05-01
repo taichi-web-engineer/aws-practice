@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t aws-practice-api:${{ github.sha }} ./api
+          docker build -t aws-practice-api:${{ github.sha }} ./ops/db-migrator
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
