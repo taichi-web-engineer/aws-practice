@@ -29,6 +29,7 @@ RUN mkdir -p extracted && \
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
+# コミットSHA変更のための更新
 # 脆弱性があるパッケージを修正バージョン以上にアップデート
 # RUN apk update && \
 #     apk upgrade && \
