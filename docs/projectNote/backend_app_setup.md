@@ -535,3 +535,35 @@ Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスす�
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
 ## Dockerイメージの脆弱性チェック
+Dockerイメージに脆弱性があると攻撃される危険があります。[Trivy](https://trivy.dev/latest/)というOSSでイメージの脆弱性チェックをしましょう。
+
+まずTrivyをインストールします。
+
+```bash
+brew install trivy
+```
+
+`trivy image イメージ名`のコマンドでイメージの脆弱性チェックができます。
+
+```bash
+trivy image aws-practice-api
+```
+
+以下の表示が出れば脆弱性は0件です。
+
+```bash
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+```
+
+作成したSpring BootアプリのDockerfileには、`eclipse-temurin:21-jre-alpine`に含まれる`libexpat`と`sqlite-libs`に脆弱性がありました。なのでDockerfile内で脆弱性が修正されたバージョンにアップデートしています。
+
+```dockerfile
+# 脆弱性があるパッケージを修正バージョン以上にアップデート
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache libexpat>=2.7.0-r0 sqlite-libs>=3.48.0-r1
+```
+
+## 脆弱性チェックをGithub Actionsで定期実行する
