@@ -13,66 +13,89 @@ permissions:
   security-events: write
 
 jobs:
-  scan:
-    name: Trivy Vulnerability Scan
+  trivy-scan:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # リポジトリ取得
+      - uses: actions/checkout@v4
 
-      # Dockerイメージのビルド前にキャッシュをクリーンアップ（オプション）
-      - name: Clean Docker cache before build
-        run: |
-          docker system prune -af --volumes
-          echo "Docker environment cleaned before build"
-
+      # 任意: イメージをビルド (例)
       - name: Build Docker image
         run: |
           docker build -t aws-practice-api:${{ github.sha }} ./ops/db-migrator
 
-      - name: Run Trivy vulnerability scanner
+      # Trivy スキャン
+      - name: Trivy image scan
         uses: aquasecurity/trivy-action@master
         with:
+          scan-type: 'image'
           image-ref: 'aws-practice-api:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          format: 'table'
+          exit-code: '0'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'  # 全て
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      # 任意: SBOM や SARIF をアップロードする場合
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: trivy-results.sarif
 
-      - name: Generate Trivy scan report
-        run: |
-          # HTMLレポート用のディレクトリを作成
-          mkdir -p trivy-reports
-          
-          # テキスト形式のレポートも生成
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v ${{ github.workspace }}:/tmp \
-            aquasec/trivy:latest \
-            image -f table -o /tmp/trivy-reports/report.txt aws-practice-api:${{ github.sha }}
-          
-          echo "詳細なスキャン結果はレポートをご覧ください。"
+# jobs:
+#   scan:
+#     name: Trivy Vulnerability Scan
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Archive vulnerability reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-vulnerability-reports
-          path: trivy-reports/
-          retention-days: 90
+#       - name: Build Docker image
+#         run: |
+#           docker build -t aws-practice-api:${{ github.sha }} ./api
 
-      - name: Clean up Docker images and cache
-        if: always()  # スキャンが成功しても失敗しても必ず実行
-        run: |
-          echo "Removing Docker image used for scanning"
-          docker rmi my-docker-image:${{ github.sha }} || true
+#       - name: Run Trivy vulnerability scanner
+#         uses: aquasecurity/trivy-action@master
+#         with:
+#           image-ref: 'aws-practice-api:${{ github.sha }}'
+#           format: 'sarif'
+#           output: 'trivy-results.sarif'
+#           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+#       - name: Upload Trivy scan results to GitHub Security tab
+#         uses: github/codeql-action/upload-sarif@v3
+#         with:
+#           sarif_file: 'trivy-results.sarif'
+
+#       - name: Generate Trivy scan report
+#         run: |
+#           # HTMLレポート用のディレクトリを作成
+#           mkdir -p trivy-reports
           
-          echo "Cleaning Docker cache"
-          docker system prune -af --volumes
+#           # テキスト形式のレポートも生成
+#           docker run --rm \
+#             -v /var/run/docker.sock:/var/run/docker.sock \
+#             -v ${{ github.workspace }}:/tmp \
+#             aquasec/trivy:latest \
+#             image -f table -o /tmp/trivy-reports/report.txt aws-practice-api:${{ github.sha }}
           
-          echo "Docker cleanup completed"
-          docker images
-          docker system df
+#           echo "詳細なスキャン結果はレポートをご覧ください。"
+
+#       - name: Archive vulnerability reports
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: trivy-vulnerability-reports
+#           path: trivy-reports/
+#           retention-days: 90
+
+#       - name: Clean up Docker images and cache
+#         if: always()  # スキャンが成功しても失敗しても必ず実行
+#         run: |
+#           echo "Removing Docker image used for scanning"
+#           docker rmi my-docker-image:${{ github.sha }} || true
+          
+#           echo "Cleaning Docker cache"
+#           docker system prune -af --volumes
+          
+#           echo "Docker cleanup completed"
+#           docker images
+#           docker system df
