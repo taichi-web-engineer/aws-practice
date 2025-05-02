@@ -1,4 +1,7 @@
 # 実務レベルのKotlin、Spring BootバックエンドAPI環境構築とDockerコンテナ化
+
+![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
+
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
 本記事のゴールは、
