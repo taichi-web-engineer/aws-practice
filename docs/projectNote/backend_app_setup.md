@@ -1,6 +1,4 @@
 # 実務レベルのKotlin、Spring BootバックエンドAPI環境構築とDockerコンテナ化
-![WebアプリのAWS構成](images/app_aws_architecture.png)
-
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
 本記事のゴールは、
