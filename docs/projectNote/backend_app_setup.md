@@ -214,7 +214,7 @@ Common Commands:
 Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
 
 ## DB環境構築
-`ops/db-migrator/README.md`をもとにDB環境構築をします。
+`ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/ops/db-migrator/README.md
 
