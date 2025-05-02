@@ -29,15 +29,19 @@ jobs:
           scan-type: 'image'
           image-ref: 'aws-practice-api:${{ github.sha }}'
           format: sarif
+          exit-code: '0'
           output: trivy-results.sarif
 
       - name: Upload SARIF
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
+          category: trivy-image
           wait-for-processing: true
 
       - name: Upload sarif artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-sarif-${{ github.run_number }}
@@ -53,6 +57,7 @@ jobs:
           output: trivy-table.txt
 
       - name: Upload table artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-table-${{ github.run_number }}
