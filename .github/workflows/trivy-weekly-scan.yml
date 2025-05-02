@@ -24,21 +24,21 @@ jobs:
           scan-type: 'image'
           image-ref: 'aws-practice-api:${{ github.sha }}'
           format: sarif
-          exit-code: '1'
+          exit-code: '1' # 脆弱性があったらジョブ失敗
           output: trivy-results.sarif
 
       - name: Trivy table report
-        if: always()
+        if: always() # レポート出力のため、常に実行
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
           image-ref: aws-practice-api:${{ github.sha }}
           format: table
-          exit-code: '0'
+          exit-code: '0' # 脆弱性があってもジョブ成功
           output: trivy-table.txt
 
       - name: Upload table artifact
-        if: always()
+        if: always() # レポート出力のため、常に実行
         uses: actions/upload-artifact@v4
         with:
           name: trivy-table-${{ github.run_number }}
