@@ -7,11 +7,6 @@ on:
 
   workflow_dispatch: # 手動実行を可能にする
 
-# Securityタブ書き出しのための権限設定を追加
-permissions:
-  contents: read
-  security-events: write
-
 jobs:
   trivy-scan:
     runs-on: ubuntu-latest
