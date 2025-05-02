@@ -17,14 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # リポジトリ取得
       - uses: actions/checkout@v4
 
       - name: Build Docker image
         run: |
           docker build -t aws-practice-api:${{ github.sha }} ./ops/db-migrator
 
-      # Trivy スキャン
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -33,7 +31,6 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           exit-code: '0'
-          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
 
       - name: Upload SARIF
         if: always()
