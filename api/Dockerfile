@@ -29,12 +29,6 @@ RUN mkdir -p extracted && \
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# コミットSHA変更のための更新
-# 脆弱性があるパッケージを修正バージョン以上にアップデート
-# RUN apk update && \
-#     apk upgrade && \
-#     apk add --no-cache libexpat>=2.7.0-r0 sqlite-libs>=3.48.0-r1
-
 # タイムゾーン設定
 ENV TZ=Asia/Tokyo
 
