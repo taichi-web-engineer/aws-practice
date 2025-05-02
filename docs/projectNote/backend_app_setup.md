@@ -8,19 +8,22 @@
 - Kotlin
 - Spring Boot
 - PostgreSQL
+- IntelliJ IDEA
 
-で、バックエンドAPIの開発環境を構築してDockerコンテナ化することです。環境変数や静的解析、DBマイグレーションの設定など実務レベルの環境構築手順がわかります。
+で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
+
+(後日公開予定)
 
 バックエンドのGithubリポジトリは以下です。
 
 https://github.com/taichi-web-engineer/aws-practice
 
-実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。具体的にはKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
+実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
 
-GitやLinuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
+IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
 
 ## Gitでaws-practiceリポジトリ作成
-自身のGithubでaws-practiceという名前でリポジトリを作成します。
+[Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
 ![Githubでaws-practiceのリポジトリ作成](create_aws_practice_repository.png)
 
@@ -38,8 +41,8 @@ gitでcommitをするとOSの一時ファイルなど、不要なファイルが
 
 https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 
-環境変数の管理は[direnv](https://direnv.net/)というツールでやります（詳細は後ほど解説）。
-direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形の`ignore`が以下です。
+環境変数の管理は[direnv](https://direnv.net/)というツールを使います（詳細は後ほど解説）。
+direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形が以下です。
 
 ```
 # General
@@ -85,7 +88,7 @@ o3の回答をもとに作成したものが以下です。グローバルなgit
 https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
 
 ## DB、AWS関連モジュールの取得
-私のaws-practiceのGithubリポジトリから`./ops`、`./Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
+私のaws-practiceのGithubリポジトリから`aws-practice/ops`、`aws-practice/Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
 
 https://github.com/taichi-web-engineer/aws-practice
 
@@ -103,7 +106,7 @@ Project Metadataの概要は以下のとおりです。
 - Group：ドメインを逆にしたものを設定する。パッケージ名などで使われる
 - Artifact：プロジェクト自体のディレクトリ名などで使われる
 
-GroupはAWSで取得するドメインをもとに設定します。私は`aws-practice-taichi.com`というドメインを取得するので、`com.awsPracticeTaichi`としました。パッケージ名で「-」は使えないのでキャメルケースにしています。
+GroupはAWSで取得するドメインをもとに設定します。私は`aws-practice-taichi.com`というドメインを取得するので、`com.awsPracticeTaichi`としました。パッケージ名に「-」は使えないのでキャメルケースにしています。
 
 DependenciesにはAPI、DB設定に必要なツールを追加しました。
 
@@ -170,13 +173,13 @@ tasks.withType<Test> {
 
 https://www.genspark.ai/agents?id=7101cdc5-e583-4460-a838-3dcf928f6c5b
 
-AIの回答を踏まえた<span id="latest_build_gradle_kts">`build.gradle.kts`の最終版</span>は以下です。
+AIの回答を踏まえた<span id="latest_build_gradle_kts">`build.gradle.kts`の完成版</span>は以下です。
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.kts
 
 [detekt](https://detekt.dev/)という静的解析ツールを使いたいので、jvmのバージョン変更や関連ライブラリ追加をしています。(詳細は後ほど解説)
 
-`build.gradle.kts`を更新したら「すべてのGradle プロジェクトを同期」ボタンで`build.gradle.kts`のライブラリやプラグインを反映できます。
+`build.gradle.kts`を完成版と同じ内容に更新したら「すべてのGradle プロジェクトを同期」ボタンで`build.gradle.kts`のライブラリやプラグインを反映できます。
 
 ![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)
 
@@ -185,7 +188,7 @@ Gradle同期時に`The detekt plugin found some problems`という警告が出�
 ![alt text](detekt_alert.png)
 
 ## Docker環境構築
-Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で**動作が軽くて速い**からです。詳細は以下の記事を参照してください。
+Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
 
 https://qiita.com/shota0616/items/5b5b74d72272627e0f5a
 
@@ -238,19 +241,20 @@ restore: .check-db
 	docker compose exec -T db psql -U postgres -d $(DB) < db/$(DB)/dump.sql
 ```
 
-Makefileとは複数のコマンドや変数を使ってコマンドを簡略化するコマンド集のようなものです。`make restore`コマンドの実態は引数のチェックをしたあと2つの`docker compose exec`コマンドでDBに`dump.sql`のseedデータを登録するコマンドというわけです。
+Makefileは複数のコマンドや変数を使ってコマンドを簡略化するコマンド集のようなものです。`make restore`コマンドの実態は引数のチェックをしたあと2つの`docker compose exec`コマンドでDBに`dump.sql`のseedデータを登録するコマンドというわけです。
 
 データを入れたら、[TablePlus](https://tableplus.com/)などのDBクライアントツールで`aws_test`テーブルのテストデータを確認できればOKです。
 
 ![テストデータ](images/app_db_data.png)
 
-DBのDockerコンテナはマウントによるデータ永続化をしていません。なのでDockerコンテナを停止するとテストデータは削除されます。
+DBのDockerコンテナはマウントによるデータ永続化をしていません。Dockerコンテナを停止するとテストデータは削除されます。
 
 永続化をしない理由はDBマイグレーションでDB環境をすぐ復元できるためです。復元のためのテストデータは以下のディレクトリで管理しています。
 
 https://github.com/taichi-web-engineer/aws-practice/tree/main/ops/db-migrator/db/aws_practice
 
 DBを使うときは<span id="db_exec">以下手順</span>でDB環境を復元できます。
+
  1. Docker Desktop or OrbStackの起動
  2. ops/db-migratorへcd
  3. docker compose up -d
@@ -446,6 +450,8 @@ detektのフォーマットはよく使うので、私は`Ctrl + A`のショー�
 
 ![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)
 
+保存時に自動フォーマットが理想ですが、別途プラグインやツールが必要で面倒なため、私はショートカットを使っています。
+
 ## detektの静的解析をcommit時に自動実行する
 `aws-practice/.githooks/pre-commit`にはcommit時にdetektのチェックおよびフォーマットをかけるスクリプトを書いています。commit時にdetektを実行すれば、フォーマットの整っていないコードがcommitされることはありません。
 
@@ -457,7 +463,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.githooks/pre-comm
 
 `aws-practice`のディレクトリで`git config core.hooksPath .githooks`を実行し、gitにスクリプトの場所を教えます。次に`chmod +x .githooks/pre-commit`でスクリプトの実行権限を付与して準備完了です。
 
-適当なファイルに不要なスペースを入れてcommitすると、以下のようなエラーになってdetektのフォーマットも実行されます。
+適当なファイルに不要なスペースを入れてcommitすると、以下のようなエラーになってdetektのフォーマットが実行されます。
 
 ```bash
 git commit -m "pre-commitテスト"
@@ -582,6 +588,6 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
 ## AWSの環境構築
-DB、バックエンドアプリができたのでAWS環境にアプリを構築していきます。詳細は以下の記事で解説します。
+DB、バックエンドアプリができたのでAWSにアプリを構築していきます。詳細は以下の記事で解説します。
 
 (後日公開予定)
