@@ -20,7 +20,6 @@ jobs:
       # リポジトリ取得
       - uses: actions/checkout@v4
 
-      # 任意: イメージをビルド (例)
       - name: Build Docker image
         run: |
           docker build -t aws-practice-api:${{ github.sha }} ./ops/db-migrator
@@ -34,9 +33,8 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           exit-code: '0'
-          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'  # 全て
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
 
-      # 任意: SBOM や SARIF をアップロードする場合
       - name: Upload SARIF
         if: ${{ always() }}
         uses: github/codeql-action/upload-sarif@v3
