@@ -30,7 +30,6 @@ jobs:
           image-ref: 'aws-practice-api:${{ github.sha }}'
           format: sarif
           output: trivy-results.sarif
-          exit-code: '0'
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -52,7 +51,6 @@ jobs:
           image-ref: aws-practice-api:${{ github.sha }}
           format: table
           output: trivy-table.txt
-          exit-code: '0'
 
       - name: Upload table artifact
         uses: actions/upload-artifact@v4
