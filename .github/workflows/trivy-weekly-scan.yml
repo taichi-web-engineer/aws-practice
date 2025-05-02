@@ -31,12 +31,14 @@ jobs:
         with:
           scan-type: 'image'
           image-ref: 'aws-practice-api:${{ github.sha }}'
-          format: 'table'
+          format: sarif
+          output: trivy-results.sarif
           exit-code: '0'
           severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'  # 全て
 
       # 任意: SBOM や SARIF をアップロードする場合
       - name: Upload SARIF
+        if: ${{ always() }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
