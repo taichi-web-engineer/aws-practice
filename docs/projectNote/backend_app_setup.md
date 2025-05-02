@@ -1,26 +1,21 @@
-# 実務レベルのKotlin、Spring Bootアプリ環境構築とDockerコンテナ化
+# 実務レベルのKotlin、Spring BootバックエンドAPI環境構築とDockerコンテナ化
 ![WebアプリのAWS構成](images/app_aws_architecture.png)
 
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
-本記事のゴールは上記AWS構成のWebアプリを作成することです。技術スタックは
+本記事のゴールは、
 
 - Kotlin
 - Spring Boot
 - PostgreSQL
-- Go(DBマイグレーションでのみ使用)
-- Next.js
-- Docker
-- Terraform
 
-で、バックエンド開発にはIntelliJ IDEAを使います。
+で、バックエンドAPIの開発環境を構築してDockerコンテナ化することです。環境変数や静的解析、DBマイグレーションの設定など実務レベルの環境構築手順がわかります。
 
-バックエンドのGithubリポジトリは以下です。フロントエンドとAWSリソースのTerraformのリポジトリは今後追記します。
+バックエンドのGithubリポジトリは以下です。
 
 https://github.com/taichi-web-engineer/aws-practice
 
-実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。具体的にはKotlin、Spring BootでDBからデータを取得して返すAPIを用意し、Next.jsでAPIから取得したデータを画面表示するのみです。
-SQSによる非同期処理、SESによるメール配信も動作確認ができる最低限の機能のみ実装します。
+実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。具体的にはKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
 
 GitやLinuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
 
@@ -557,13 +552,36 @@ Legend:
 - '0': Clean (no security findings detected)
 ```
 
-作成したSpring BootアプリのDockerfileには、`eclipse-temurin:21-jre-alpine`に含まれる`libexpat`と`sqlite-libs`に脆弱性がありました。なのでDockerfile内で脆弱性が修正されたバージョンにアップデートしています。
+## 脆弱性チェックをGithub Actionsで定期実行する
+定期的に手動で脆弱性チェックをするのはしんどいです。なのでGithub Actionsでtrivyを週1回0時に定期実行するようにしましょう。
 
-```dockerfile
-# 脆弱性があるパッケージを修正バージョン以上にアップデート
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache libexpat>=2.7.0-r0 sqlite-libs>=3.48.0-r1
+今回もChatGPT o3にやり方を聞きました。
+
+```
+プロジェクトのDockerコンテナのTrivyによる脆弱性スキャンをGitHub Actionsで毎週日曜0時に実行したい
 ```
 
-## 脆弱性チェックをGithub Actionsで定期実行する
+完成したGithub Actionsのymlファイルが以下です。これを`aws-practice/.github/workflows/trivy-weekly-scan.yml`に配置してコミットします。
+
+https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/trivy-weekly-scan.yml
+
+これで毎週日曜0時にSpring BootアプリのDockerイメージにtrivyによる脆弱性チェックが実行されます。
+
+手動実行で動作確認もできます。自身のリポジトリのActionsタブ → Weekly Trivy Scan → Run workflowをクリックすれば手動実行可能です。
+
+![Github Actionsの脆弱性チェック手動実行](images/trivy_manual_exec.png)
+
+脆弱性チェックの結果はActionsタブのトップページに表示されます。緑のチェックは脆弱性なし、赤のバツは脆弱性ありです。
+
+![脆弱性チェック結果](images/security_check_result.png)
+
+またワークフローの詳細画面からチェック結果詳細をテキストファイルでダウンロードもできます。
+
+![脆弱性チェック結果のダウンロード](images/security_check_result_download.png)
+
+脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
+
+## AWSの環境構築
+DB、バックエンドアプリができたのでAWS環境にアプリを構築していきます。詳細は以下の記事で解説します。
+
+(後日公開予定)
