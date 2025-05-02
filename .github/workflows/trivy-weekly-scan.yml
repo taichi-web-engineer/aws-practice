@@ -35,11 +35,17 @@ jobs:
           exit-code: '0'
           severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
 
-      - name: Upload SARIF
-        if: ${{ always() }}
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Trivy JSON (second run)
+        run: trivy image --format json -o trivy-results.json aws-practice-api:${{ github.sha }}
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: trivy-results.sarif
+          name: trivy-scan-${{ github.run_number }}
+          path: |
+            trivy-results.sarif
+            trivy-results.json
+          retention-days: 30
 
 # jobs:
 #   scan:
