@@ -1,4 +1,4 @@
-# 実務レベルのKotlin、Spring BootバックエンドAPI環境構築とDockerコンテナ化
+# 実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化
 
 ![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
