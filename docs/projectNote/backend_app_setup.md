@@ -186,7 +186,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.k
 
 Gradle同期時に`The detekt plugin found some problems`という警告が出ますが、これはdetektの設定が未完了なためなので無視してOKです。
 
-![detektの警告](detekt_alert.png)
+![detektの警告](images/detekt_alert.png)
 
 ## Docker環境構築
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
