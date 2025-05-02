@@ -41,14 +41,16 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-      - name: Trivy → table txt
-        env:
-          TRIVY_SKIP_DB_UPDATE: true  # DB 更新をスキップ
-        run: |
-          trivy image --format table -o trivy-table.txt aws-practice-api:${{ github.sha }}
+      - name: Trivy table report
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: aws-practice-api:${{ github.sha }}
+          format: table
+          output: trivy-table.txt
+          exit-code: '0'
 
-      # 4) table レポートをアーティファクト化
-      - name: Upload table report
+      - name: Upload table artifact
         uses: actions/upload-artifact@v4
         with:
           name: trivy-table-${{ github.run_number }}
