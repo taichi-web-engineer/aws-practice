@@ -2,7 +2,8 @@
 
 ![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
-エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
+エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。<br>
+<br>
 
 本記事のゴールは、
 
