@@ -83,11 +83,11 @@ ChatGPT o3の検索モードで以下の質問をして`.gitignore`の内容を�
 kotlin、spring bootのwebアプリ用の.gitignoreのベストプラクティスを教えて
 ```
 
-https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd
+https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd<br><br>
 
 o3の回答をもとに作成したものが以下です。グローバルなgitignoreで設定しているもの、不要なものは削除しています。
 
-https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
+https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore<br><br>
 
 ## DB、AWS関連モジュールの取得
 私のaws-practiceのGithubリポジトリから`aws-practice/ops`、`aws-practice/Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
