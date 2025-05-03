@@ -23,14 +23,15 @@ https://github.com/taichi-web-engineer/aws-practice<br><br>
 IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。<br><br>
 
 ## Gitでaws-practiceリポジトリ作成
-[Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
+[Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。<br><br>
 
 ![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)<br><br>
 
-リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。
+リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。<br><br>
 ```bash
 git clone git@github.com:taichi-web-engineer/aws-practice.git
 ```
+<br><br>
 
 ## グローバルなgitignoreで不要ファイルのcommitを防ぐ
 gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
