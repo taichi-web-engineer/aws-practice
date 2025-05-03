@@ -1,27 +1,16 @@
 # 実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化
 ![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
-エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
+こんにちは、フリーランスエンジニアのたいち（[@taichi_hack_we](https://x.com/taichi_hack_we)）です。
+この記事では**Kotlin** / **Spring Boot** / **PostgreSQL**によるシンプルなバックエンドAPIを作成し、**Docker**でコンテナ化するまでの手順をまとめました。
 
-本記事のゴールは、
-- Kotlin
-- Spring Boot
-- PostgreSQL
-- IntelliJ IDEA
+続編（後日公開予定）では、ここで作ったAPIを**AWS**にデプロイします。
 
-で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事の続編である以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
-
-(後日公開予定)
-
-バックエンドのGithubリポジトリは以下です。
+Githubリポジトリは以下です。
 
 https://github.com/taichi-web-engineer/aws-practice
 
-実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
-
-IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
-
-## Gitでaws-practiceリポジトリ作成
+## aws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
 ![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)
@@ -31,18 +20,15 @@ IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかる�
 git clone git@github.com:taichi-web-engineer/aws-practice.git
 ```
 
-## グローバルなgitignoreで不要ファイルのcommitを防ぐ
-gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
-不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。
+以降、`aws-practice`ディレクトリを**ルート**と呼びます。
 
-私のPCはMacOSなので、Githubが出しているMacOS用のgitignoreを使っています。
+##  不要ファイルをcommit対象から除外する`.gitignore`
+### グローバルな`gitignore`
+macOSの一時ファイルなどを除外するため、`~/.config/git/ignore`を作成します。
+ベースは[GitHub公式macOS用テンプレート](https://github.com/github/gitignore/blob/main/Global/macOS.gitignore)です。
+さらにdirenv(環境変数管理ツール。詳細は後で解説)の`.envrc`を`ignore`に追加します。
 
-[Github公式のMacOS用gitignore](https://github.com/github/gitignore/blob/main/Global/macOS.gitignore)
-
-環境変数の管理は[direnv](https://direnv.net/)というツールを使います（詳細は後ほど解説）。
-direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形が以下です。
-
-```
+```bash:~/.config/git/ignore
 # General
 .DS_Store
 .AppleDouble
@@ -71,9 +57,9 @@ Temporary Items
 .envrc
 ```
 
-## aws-practiceリポジトリの.gitignoreを作成
-aws-practiceリポジトリ専用の`.gitignore`を作成します。
-ChatGPT o3の検索モードで以下の質問をして`.gitignore`の内容を作成してもらいました。
+### リポジトリ用`.gitignore`
+ルート直下に`.gitignore`置きます。
+`.gitignore`の内容はChatGPT o3に以下のプロンプトで考えてもらいました。
 
 ```
 kotlin、spring bootのwebアプリ用の.gitignoreのベストプラクティスを教えて
@@ -85,13 +71,8 @@ o3の回答を調整した最終版が以下です。グローバルなgitignore
 
 [.gitignore最終版](https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore)
 
-## DB、AWS関連モジュールの取得
-私のaws-practiceのGithubリポジトリから`aws-practice/ops`、`aws-practice/Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
-
-https://github.com/taichi-web-engineer/aws-practice
-
 ## Kotlin、Spring Bootプロジェクトの作成
-[Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でGENERATEボタンをクリックし、Kotlin、Spring Bootプロジェクトをダウンロードしてaws-practiceのルートディレクトリに<span id="spring_initializr_setting">配置</span>します。
+[Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でZIPをダウンロードし、ルートに<span id="spring_initializr_setting">展開</span>します。
 
 ![Spring Initializrの設定](images/spring_initializr_setting.png)
 
@@ -108,7 +89,7 @@ GroupはAWSで取得するドメインをもとに設定します。私は`aws-p
 
 DependenciesにはAPI、DB設定に必要なツールを追加しました。
 
-## Kotlin、Spring Bootアプリを最新バージョンにする
+## 依存ライブラリを最新のLTS(安定版)に更新
 Kotlin、Spring Bootなど、各ライブラリのバージョンは`api/build.gradle.kts`で以下のように定義されています。
 ```kotlin
 plugins {
@@ -160,7 +141,10 @@ tasks.withType<Test> {
 }
 ```
 
-ライブラリのバージョンは最新のLTSを使いたいので、Gensparkのスーパーエージェントに以下のプロンプトで修正してもらいましょう。
+依存ライブラリのバージョンは最新のLTSを使いたいので、Gensparkのスーパーエージェントに以下のプロンプトで修正してもらいましょう。
+
+> Tips：ChatGPTとGensparkは両方に同じプロンプトを投げ、より良い回答を採用しています
+
 ```
 以下のbuild.gradle.ktsの設定内容を最新のLTSバージョンに更新したいです
 
@@ -183,7 +167,8 @@ Gradle同期時に`The detekt plugin found some problems`という警告が出�
 
 ![detektの警告](images/detekt_alert.png)
 
-## Docker環境構築
+## Docker & DB環境構築
+### Docker
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
 
 https://qiita.com/shota0616/items/5b5b74d72272627e0f5a
@@ -208,7 +193,9 @@ Common Commands:
 
 Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
 
-## DB環境構築
+## データベース
+[私のaws-practiceのGithubリポジトリ](https://github.com/taichi-web-engineer/aws-practice)から`aws-practice/ops`、`aws-practice/Makefile`を取得して自身の`aws-practice`の同じパスに配置してください。
+
 `aws-practice/ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/ops/db-migrator/README.md
@@ -262,7 +249,7 @@ DBのパスワードなど、Gitにコミットしたくないセキュアな情
 
 https://zenn.dev/masuda1112/articles/2024-11-29-direnv
 
-direnvをインストールしたら`api`ディレクトリに移動します。
+direnvをインストールしたらルートから`api`ディレクトリに移動します。
 
 ```bash
 cd api
@@ -318,7 +305,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 2025-04-28T20:26:31.303+09:00  INFO 9834 --- [api] [           main] c.a.api.ApiApplicationKt                 : Started ApiApplicationKt in 0.953 seconds (process running for 1.137)
 ```
 
-この状態でブラウザから`localhost:8080`へアクセスしても、ルートのエンドポイントに何も設定していないので404エラーになります。
+この状態でブラウザから`localhost:8080`へアクセスしても、ルートのエンドポイントが未実装なので404エラーになります。
 
 ![404エラーページ](images/404_error_page.png)
 
@@ -490,6 +477,10 @@ AWSのFargateでKotlin、Spring Bootアプリを動かすにはDockerコンテ�
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/api/Dockerfile
 
+またDockerイメージに不要なファイルが含まれないよう`aws-practice/api/.dockerignore`を作成します。`.dockerignore`も[ChatGPT o3に作成依頼](https://chatgpt.com/share/6815e84e-9f50-8009-8e2a-1aad835bfd52)をしました。
+
+https://github.com/taichi-web-engineer/aws-practice/blob/main/api/.dockerignore
+
 ## Dockerコンテナでアプリを動かす動作確認
 Dockerコンテナで正常にアプリが動くか動作確認をしましょう。まず`aws-practice/api`ディレクトへ移動します。
 
@@ -575,7 +566,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
-## AWSの環境構築
-DB、バックエンドアプリができたのでAWSにアプリを構築していきます。詳細は以下の記事で解説します。
+## 次回：AWS環境構築
+次回は今回作成したバックエンドAPIを使ったAWS環境構築します。お楽しみに！
 
 (後日公開予定)
