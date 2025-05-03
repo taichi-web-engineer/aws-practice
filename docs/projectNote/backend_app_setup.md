@@ -168,7 +168,7 @@ Gradle同期時に`The detekt plugin found some problems`という警告が出�
 ![detektの警告](images/detekt_alert.png)
 
 ## Docker & DB環境構築
-### Docker
+### Docker環境構築
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
 
 https://qiita.com/shota0616/items/5b5b74d72272627e0f5a
@@ -193,7 +193,7 @@ Common Commands:
 
 Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
 
-## データベース
+### データベース環境構築
 [私のaws-practiceのGithubリポジトリ](https://github.com/taichi-web-engineer/aws-practice)から`aws-practice/ops`、`aws-practice/Makefile`を取得して自身の`aws-practice`の同じパスに配置してください。
 
 `aws-practice/ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
