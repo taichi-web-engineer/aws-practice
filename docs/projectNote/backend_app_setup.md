@@ -24,9 +24,9 @@ git clone git@github.com:taichi-web-engineer/aws-practice.git
 
 ##  不要ファイルをcommit対象から除外する`.gitignore`
 ### グローバルな`gitignore`
-macOSの一時ファイルなどを除外するため、`~/.config/git/ignore`を作成します。
+macOSの一時ファイルなどを全リポジトリのcommit対象から除外するため、`~/.config/git/ignore`を作成します。
 ベースは[GitHub公式macOS用テンプレート](https://github.com/github/gitignore/blob/main/Global/macOS.gitignore)です。
-さらにdirenv(環境変数管理ツール。詳細は後で解説)の`.envrc`を`ignore`に追加します。
+さらに環境変数管理ツールdirenv(詳細は後で解説)の設定ファイル`.envrc`を`ignore`に追加します。
 
 ```bash:~/.config/git/ignore
 # General
@@ -69,7 +69,7 @@ kotlin、spring bootのwebアプリ用の.gitignoreのベストプラクティ�
 
 o3の回答を調整した最終版が以下です。グローバルなgitignoreで設定しているもの、不要なものは削除しています。
 
-[.gitignore最終版](https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore)
+https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
 
 ## Kotlin、Spring Bootプロジェクトの作成
 [Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でZIPをダウンロードし、ルートに<span id="spring_initializr_setting">展開</span>します。
@@ -155,7 +155,7 @@ tasks.withType<Test> {
 
 <span id="latest_build_gradle_kts">`build.gradle.kts`の完成版</span>は以下です。
 
-[build.gradle.kts完成版](https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.kts)
+https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.kts
 
 [detekt](https://detekt.dev/)という静的解析ツールを使いたいので、jvmのバージョン変更や関連ライブラリ追加をしています。(詳細は後ほど解説)
 
