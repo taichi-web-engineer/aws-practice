@@ -26,7 +26,7 @@ IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかる�
 ## Gitでaws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
-![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)
+![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)<br><br>
 
 リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。
 ```bash
@@ -96,7 +96,7 @@ https://github.com/taichi-web-engineer/aws-practice
 ## Kotlin、Spring Bootプロジェクトの作成
 [Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でGENERATEボタンをクリックし、Kotlin、Spring Bootプロジェクトをダウンロードしてaws-practiceのルートディレクトリに<span id="spring_initializr_setting">配置</span>します。
 
-![Spring Initializrの設定](images/spring_initializr_setting.png)
+![Spring Initializrの設定](images/spring_initializr_setting.png)<br><br>
 
 `Gradle - Kotlin`を選ぶ理由は私が他のGroovyやMavenを使ったことがないためです。実務でもGradleがよく使われている印象です。
 
@@ -182,11 +182,11 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.k
 
 `build.gradle.kts`を完成版と同じ内容に更新したら「すべてのGradle プロジェクトを同期」ボタンで`build.gradle.kts`のライブラリやプラグインを反映できます。
 
-![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)
+![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)<br><br>
 
 Gradle同期時に`The detekt plugin found some problems`という警告が出ますが、これはdetektの設定が未完了なためなので無視してOKです。
 
-![detektの警告](images/detekt_alert.png)
+![detektの警告](images/detekt_alert.png)<br><br>
 
 ## Docker環境構築
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
@@ -246,7 +246,7 @@ Makefileは複数のコマンドや変数を使ってコマンドを簡略化す
 
 データを入れたら、[TablePlus](https://tableplus.com/)などのDBクライアントツールで`aws_test`テーブルのテストデータを確認できればOKです。
 
-![テストデータ](images/app_db_data.png)
+![テストデータ](images/app_db_data.png)<br><br>
 
 DBのDockerコンテナはマウントによるデータ永続化をしていません。Dockerコンテナを停止するとテストデータは削除されます。
 
@@ -310,12 +310,12 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 次に、IntelliJで`.envrc`の環境変数を使うために実行/デバッグ構成の環境変数の設定で`.envrc`を選択して適用しましょう。
 
-![IntelliJの環境変数設定](images/IntelliJ_env_file_setting.png)
+![IntelliJの環境変数設定](images/IntelliJ_env_file_setting.png)<br><br>
 
 ## Spring Bootアプリの起動確認
 ここまでの設定がうまくいっているかSpring Bootアプリを起動して確かめましょう。IntelliJの右上のApiApplicationの起動ボタンで起動できます。([DBを立ち上げて](#db_exec)いないと起動失敗します)
 
-![IntelliJのアプリ起動ボタン](images/intellij_app_execute_button.png)
+![IntelliJのアプリ起動ボタン](images/intellij_app_execute_button.png)<br><br>
 
 コンソールに以下のような表示が出れば起動成功です。
 
@@ -325,7 +325,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 この状態でブラウザから`localhost:8080`へアクセスしても、ルートのエンドポイントに何も設定していないので404エラーになります。
 
-![404エラーページ](images/404_error_page.png)
+![404エラーページ](images/404_error_page.png)<br><br>
 
 ルートのエンドポイントでDBのデータを返すようにしましょう。
 
@@ -348,7 +348,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 ## APIでDBデータを取得して返す動作確認
 アプリを再起動して`localhost:8080`へアクセスすると、APIがDBから取得したデータを返していることが確認できます。
 
-![APIのデータ取得成功画面](images/api_response_success.png)
+![APIのデータ取得成功画面](images/api_response_success.png)<br><br>
 
 「プリティ　プリント」という表示は私が使っている[Braveブラウザ](https://brave.com/ja/)が出しているもので、アプリとは無関係です。
 
@@ -385,11 +385,11 @@ gradlewコマンドの実態は`api/gradlew`にあるシェルスクリプトフ
 ## IntelliJにdetektプラグインをインストール
 ここまでの手順で、コマンドによるdetektの静的解析を実行できるようになりました。ですが、IntelliJでdetektのハイライトを出すためにはdetektプラグインが必要です。IntelliJの設定からdetektプラグインをインストールして適用しましょう。
 
-![IntelliJのdetektプラグイン](images/intellij_detekt_plugin.png)
+![IntelliJのdetektプラグイン](images/intellij_detekt_plugin.png)<br><br>
 
 プラグインを適用するとdetektの設定ができるようになります。以下のように設定し、Configuration fileとして`config/detekt/detekt.yml`を追加して適用します。
 
-![detektプラグインの設定](images/detekt_plugin_setting.png)
+![detektプラグインの設定](images/detekt_plugin_setting.png)<br><br>
 
 ## detektの動作確認
 適当なファイルで適当にスペースを入れ、以下のようにdetektのハイライトが出ればOKです。
@@ -442,11 +442,11 @@ fun main(args: Array<String>) {
 
 ファイル単位でのdetekt実行は右クリックで可能です。
 
-![ファイル単位のdetekt実行](images/file_target_detekt.png)
+![ファイル単位のdetekt実行](images/file_target_detekt.png)<br><br>
 
 detektのフォーマットはよく使うので、私は`Ctrl + A`のショートカットを割り当てています。
 
-![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)
+![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)<br><br>
 
 保存時に自動フォーマットが理想ですが、別途プラグインやツールが必要で面倒なため、私はショートカットを使っています。
 
@@ -529,7 +529,7 @@ aws-practice-api
 
 Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスするとIntelliJのアプリ起動時と同じ画面が表示されます。
 
-![APIのデータ取得成功画面](images/api_response_success.png)
+![APIのデータ取得成功画面](images/api_response_success.png)<br><br>
 
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
@@ -573,15 +573,15 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 
 手動実行で動作確認もできます。自身のリポジトリのActionsタブ → Weekly Trivy Scan → Run workflowをクリックすれば手動実行可能です。
 
-![Github Actionsの脆弱性チェック手動実行](images/trivy_manual_exec.png)
+![Github Actionsの脆弱性チェック手動実行](images/trivy_manual_exec.png)<br><br>
 
 脆弱性チェックの結果はActionsタブのトップページに表示されます。緑のチェックは脆弱性なし、赤のバツは脆弱性ありです。
 
-![脆弱性チェック結果](images/security_check_result.png)
+![脆弱性チェック結果](images/security_check_result.png)<br><br>
 
 またワークフローの詳細画面からチェック結果詳細をテキストファイルでダウンロードもできます。
 
-![脆弱性チェック結果のダウンロード](images/security_check_result_download.png)
+![脆弱性チェック結果のダウンロード](images/security_check_result_download.png)<br><br>
 
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
