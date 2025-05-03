@@ -18,9 +18,9 @@
 
 https://github.com/taichi-web-engineer/aws-practice<br><br>
 
-実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
+実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。<br><br>
 
-IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
+IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。<br><br>
 
 ## Gitでaws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
