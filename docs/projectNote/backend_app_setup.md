@@ -9,7 +9,7 @@
 - PostgreSQL
 - IntelliJ IDEA
 
-で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
+で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事の続編である以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
 
 (後日公開予定)
 
@@ -33,12 +33,11 @@ git clone git@github.com:taichi-web-engineer/aws-practice.git
 
 ## グローバルなgitignoreで不要ファイルのcommitを防ぐ
 gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
-
 不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。
 
 私のPCはMacOSなので、Githubが出しているMacOS用のgitignoreを使っています。
 
-https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+[Github公式のMacOS用gitignore](https://github.com/github/gitignore/blob/main/Global/macOS.gitignore)
 
 環境変数の管理は[direnv](https://direnv.net/)というツールを使います（詳細は後ほど解説）。
 direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形が以下です。
@@ -80,11 +79,11 @@ ChatGPT o3の検索モードで以下の質問をして`.gitignore`の内容を�
 kotlin、spring bootのwebアプリ用の.gitignoreのベストプラクティスを教えて
 ```
 
-https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd
+[ChatGPTとの会話内容](https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd)
 
 o3の回答を調整した最終版が以下です。グローバルなgitignoreで設定しているもの、不要なものは削除しています。
 
-https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
+[.gitignore最終版](https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore)
 
 ## DB、AWS関連モジュールの取得
 私のaws-practiceのGithubリポジトリから`aws-practice/ops`、`aws-practice/Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
@@ -94,7 +93,7 @@ https://github.com/taichi-web-engineer/aws-practice
 ## Kotlin、Spring Bootプロジェクトの作成
 [Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でGENERATEボタンをクリックし、Kotlin、Spring Bootプロジェクトをダウンロードしてaws-practiceのルートディレクトリに<span id="spring_initializr_setting">配置</span>します。
 
-![Spring Initializrの設定](images/spring_initializr_setting.png)png)
+![Spring Initializrの設定](images/spring_initializr_setting.png)
 
 `Gradle - Kotlin`を選ぶ理由は私が他のGroovyやMavenを使ったことがないためです。実務でもGradleがよく使われている印象です。
 
@@ -168,13 +167,11 @@ tasks.withType<Test> {
 {build.gradle.ktsの全文をコピペ}
 ```
 
-以下がAIとのやりとりの内容です。
+[Gensparkとのやりとり](https://www.genspark.ai/agents?id=7101cdc5-e583-4460-a838-3dcf928f6c5b)
 
-https://www.genspark.ai/agents?id=7101cdc5-e583-4460-a838-3dcf928f6c5b
+<span id="latest_build_gradle_kts">`build.gradle.kts`の完成版</span>は以下です。
 
-AIの回答を踏まえた<span id="latest_build_gradle_kts">`build.gradle.kts`の完成版</span>は以下です。
-
-https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.kts
+[build.gradle.kts完成版](https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.kts)
 
 [detekt](https://detekt.dev/)という静的解析ツールを使いたいので、jvmのバージョン変更や関連ライブラリ追加をしています。(詳細は後ほど解説)
 
@@ -182,7 +179,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.k
 
 ![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)
 
-Gradle同期時に`The detekt plugin found some problems`という警告が出ますが、これはdetektの設定が未完了なためなので無視してOKです。
+Gradle同期時に`The detekt plugin found some problems`という警告が出ますが、これはdetektの設定が未完了なため。あとで設定するので無視してOKです。
 
 ![detektの警告](images/detekt_alert.png)
 
@@ -212,11 +209,11 @@ Common Commands:
 Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
 
 ## DB環境構築
-`ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
+`aws-practice/ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/ops/db-migrator/README.md
 
-`README.md`に書いてあるとおり`brew install golang-migrate`で`golang-migrate`をインストールします。`golang-migrate`はDBマイグレーションツールで使います。あとは`ops/db-migrator`ディレクトリで以下コマンドを順に実行すればDBにテーブルが作成されます。
+`README.md`に書いてあるとおり`brew install golang-migrate`で`golang-migrate`をインストールします。あとは`ops/db-migrator`ディレクトリで以下コマンドを順に実行すればDBにテーブルが作成されます。
 
 ```bash
 docker compose up -d
@@ -277,7 +274,7 @@ cd api
 code .envrc
 ```
 
-`.envrc`に以下を追記して保存しましょう。ローカルのDocker環境のDBなので、接続情報は`ops/db-migrator/compose.yaml`で設定しているデフォルト値を使います。
+`.envrc`に以下を追記して保存しましょう。ローカルのDocker環境のDBなので、接続情報は[aws-practice/ops/db-migrator/compose.yaml](https://github.com/taichi-web-engineer/aws-practice/blob/main/ops/db-migrator/compose.yaml)で設定しているデフォルト値を使います。
 
 ```
 export DB_HOST=localhost
@@ -325,8 +322,6 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 ![404エラーページ](images/404_error_page.png)
 
-ルートのエンドポイントでDBのデータを返すようにしましょう。
-
 ## ルートのエンドポイントでDBのデータを返すようにする
 以下4つのファイルを[私のaws-practiceリポジトリ](https://github.com/taichi-web-engineer/aws-practice)と同じパスに配置してください。各ファイルの`package com.awsPracticeTaichi`の部分は[Spring InitializrのProject MetadataのGroup](#spring_initializr_setting)で自身で設定した値に書き換えましょう。
 
@@ -364,9 +359,7 @@ detektを導入すると整っていないコードはこのようにハイラ�
 
 などです。不要なスペースなどの自動で直せるコードは上記動画のようにショートカットキーで修正することもできます。
 
-detektの導入は公式Docsの`Quick Start with Gradle`にそってやります。
-
-https://detekt.dev/docs/intro#quick-start-with-gradle
+detektの導入は公式Docsの[Quick Start with Gradle](https://detekt.dev/docs/intro#quick-start-with-gradle)にそってやります。
 
 といっても`build.gradle.kts`のdetekt設定は[すでに終えている](#latest_build_gradle_kts)ので、`aws-practice/api`のディレクトリで公式Docsの手順通り`gradlew detektGenerateConfig`で`config/detekt/detekt.yml`を生成しましょう。
 
@@ -394,7 +387,7 @@ gradlewコマンドの実態は`api/gradlew`にあるシェルスクリプトフ
 
 ![detektの使用例](images/detekt_demo.gif)
 
-また、apiディレクトリで`./gradlew detekt`を実行するとプロジェクトの全ファイルを対象にdetektの静的解析が行われます。ですが、今の状態で実行すると`ApiApplication.kt`で`SpreadOperator`というdetektのチェックに引っかかります。
+apiディレクトリで`./gradlew detekt`を実行するとプロジェクトの全ファイルを対象にdetektの静的解析が行われます。ですが、今の状態で実行すると`ApiApplication.kt`で`SpreadOperator`というdetektのチェックに引っかかります。
 
 ```
 > Task :detekt FAILED
@@ -449,12 +442,9 @@ detektのフォーマットはよく使うので、私は`Ctrl + A`のショー�
 保存時に自動フォーマットが理想ですが、別途プラグインやツールが必要で面倒なため、私はショートカットを使っています。
 
 ## detektの静的解析をcommit時に自動実行する
-`aws-practice/.githooks/pre-commit`にはcommit時にdetektのチェックおよびフォーマットをかけるスクリプトを書いています。commit時にdetektを実行すれば、フォーマットの整っていないコードがcommitされることはありません。
+[aws-practice/.githooks/pre-commit](https://github.com/taichi-web-engineer/aws-practice/blob/main/.githooks/pre-commit)にはcommit時にdetektのチェックおよびフォーマットをかけるスクリプトを書いています。commit時にdetektを実行すれば、フォーマットの整っていないコードがcommitされることはありません。
 
 スクリプトの内容は[detekt公式Docs](https://detekt.dev/docs/gettingstarted/git-pre-commit-hook/)をもとにしています。
-
-https://github.com/taichi-web-engineer/aws-practice/blob/main/.githooks/pre-commit
-
 このスクリプトがcommit時に自動実行されるよう設定をしましょう。
 
 `aws-practice`のディレクトリで`git config core.hooksPath .githooks`を実行し、gitにスクリプトの場所を教えます。次に`chmod +x .githooks/pre-commit`でスクリプトの実行権限を付与して準備完了です。
@@ -493,9 +483,11 @@ BUILD FAILED in 436ms
 AWSのFargateでKotlin、Spring Bootアプリを動かすにはDockerコンテナ化する必要があります。Gensparnkスーパーエージェントで`Dockerfile`を作成しましょう。
 
 「kotlin、springbootアプリケーションをDockerコンテナ化するDockerfileのベストプラクティスを教えてください」というプロンプトでひな型を作成します。
-https://www.genspark.ai/agents?id=ce6d61d7-b89a-4f95-9da7-ddf923eeb6d5
+
+[Gensparkとのやりとり](https://www.genspark.ai/agents?id=ce6d61d7-b89a-4f95-9da7-ddf923eeb6d5)
 
 そしてAIとのやりとりを踏まえて修正、コメントを追記した完成版`Dockerfile`が以下です。`aws-practice/api/Dockerfile`として配置してください。
+
 https://github.com/taichi-web-engineer/aws-practice/blob/main/api/Dockerfile
 
 ## Dockerコンテナでアプリを動かす動作確認
@@ -505,7 +497,7 @@ Dockerコンテナで正常にアプリが動くか動作確認をしましょ�
 cd api
 ```
 
-OrbStackを起動し、Dockerイメージをビルドします。
+OrbStackを起動したあと、Dockerイメージをビルドします。
 
 ```bash
 docker build -t aws-practice-api .
@@ -532,7 +524,7 @@ Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスす�
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
 ## Dockerイメージの脆弱性チェック
-Dockerイメージに脆弱性があると攻撃される危険があります。[Trivy](https://trivy.dev/latest/)というOSSでイメージの脆弱性チェックをしましょう。
+アプリのDockerイメージに脆弱性があると攻撃される危険があります。[Trivy](https://trivy.dev/latest/)というOSSでイメージの脆弱性チェックをしましょう。
 
 まずTrivyをインストールします。
 
