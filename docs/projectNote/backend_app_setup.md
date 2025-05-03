@@ -31,6 +31,7 @@ IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかる�
 ```bash
 git clone git@github.com:taichi-web-engineer/aws-practice.git
 ```
+<br><br>
 
 ## グローバルなgitignoreで不要ファイルのcommitを防ぐ
 gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
