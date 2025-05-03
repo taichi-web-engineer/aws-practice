@@ -2,8 +2,6 @@
 
 ![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
-![alt text](images/work_level_env_setup_handson_org.png)
-
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
 本記事のゴールは、
@@ -28,7 +26,7 @@ IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかる�
 ## Gitでaws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
-![Githubでaws-practiceのリポジトリ作成](create_aws_practice_repository.png)
+![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)
 
 リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。
 ```bash
