@@ -5,7 +5,6 @@
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。<br><br>
 
 本記事のゴールは、
-
 - Kotlin
 - Spring Boot
 - PostgreSQL
