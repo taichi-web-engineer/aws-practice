@@ -34,13 +34,13 @@ git clone git@github.com:taichi-web-engineer/aws-practice.git
 <br>
 
 ## グローバルなgitignoreで不要ファイルのcommitを防ぐ
-gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
+gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。<br><br>
 
-不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。
+不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。<br><br>
 
 私のPCはMacOSなので、Githubが出しているMacOS用のgitignoreを使っています。
 
-https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+https://github.com/github/gitignore/blob/main/Global/macOS.gitignore<br><br>
 
 環境変数の管理は[direnv](https://direnv.net/)というツールを使います（詳細は後ほど解説）。
 direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形が以下です。
@@ -73,6 +73,7 @@ Temporary Items
 
 .envrc
 ```
+<br>
 
 ## aws-practiceリポジトリの.gitignoreを作成
 aws-practiceリポジトリ専用の`.gitignore`を作成します。
