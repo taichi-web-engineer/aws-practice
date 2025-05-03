@@ -1,8 +1,7 @@
 # 実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化
+![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
-![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)<br><br>
-
-エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。<br><br>
+エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。
 
 本記事のゴールは、
 - Kotlin
@@ -10,37 +9,36 @@
 - PostgreSQL
 - IntelliJ IDEA
 
-で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。<br><br>
+で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
 
-(後日公開予定)<br><br>
+(後日公開予定)
 
 バックエンドのGithubリポジトリは以下です。
 
-https://github.com/taichi-web-engineer/aws-practice<br><br>
+https://github.com/taichi-web-engineer/aws-practice
 
-実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。<br><br>
+実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
 
-IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。<br><br>
+IntelliJやGit、Linuxコマンドなどの基本は調べればすぐわかるので、説明は割愛します。
 
 ## Gitでaws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
-![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)<br><br>
+![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)
 
 リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。
 ```bash
 git clone git@github.com:taichi-web-engineer/aws-practice.git
 ```
-<br>
 
 ## グローバルなgitignoreで不要ファイルのcommitを防ぐ
-gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。<br><br>
+gitでcommitをするとOSの一時ファイルなど、不要なファイルがリポジトリに入ることがあります。
 
-不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。<br><br>
+不要ファイルのcommitを防ぐために`~/.config/git/ignore`を作成しましょう。`ignore`に書いたファイルはローカルの全リポジトリでcommit対象外になります。
 
 私のPCはMacOSなので、Githubが出しているMacOS用のgitignoreを使っています。
 
-https://github.com/github/gitignore/blob/main/Global/macOS.gitignore<br><br>
+https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 
 環境変数の管理は[direnv](https://direnv.net/)というツールを使います（詳細は後ほど解説）。
 direnvの環境変数設定ファイルである`.envrc`を`ignore`に追記した完成形が以下です。
@@ -73,21 +71,20 @@ Temporary Items
 
 .envrc
 ```
-<br>
 
 ## aws-practiceリポジトリの.gitignoreを作成
 aws-practiceリポジトリ専用の`.gitignore`を作成します。
-ChatGPT o3の検索モードで以下の質問をして`.gitignore`の内容を確認しました。
+ChatGPT o3の検索モードで以下の質問をして`.gitignore`の内容を作成してもらいました。
 
 ```
 kotlin、spring bootのwebアプリ用の.gitignoreのベストプラクティスを教えて
 ```
 
-https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd<br><br>
+https://chatgpt.com/share/680cc02e-36bc-8009-a7c5-9cdb609d75dd
 
-o3の回答をもとに作成したものが以下です。グローバルなgitignoreで設定しているもの、不要なものは削除しています。
+o3の回答を調整した最終版が以下です。グローバルなgitignoreで設定しているもの、不要なものは削除しています。
 
-https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore<br><br>
+https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
 
 ## DB、AWS関連モジュールの取得
 私のaws-practiceのGithubリポジトリから`aws-practice/ops`、`aws-practice/Makefile`を取得して自身のaws-practiceの同じパスに配置してください。DB、AWS環境の構築時に使います。
@@ -97,7 +94,7 @@ https://github.com/taichi-web-engineer/aws-practice
 ## Kotlin、Spring Bootプロジェクトの作成
 [Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でGENERATEボタンをクリックし、Kotlin、Spring Bootプロジェクトをダウンロードしてaws-practiceのルートディレクトリに<span id="spring_initializr_setting">配置</span>します。
 
-![Spring Initializrの設定](images/spring_initializr_setting.png)<br><br>
+![Spring Initializrの設定](images/spring_initializr_setting.png)png)
 
 `Gradle - Kotlin`を選ぶ理由は私が他のGroovyやMavenを使ったことがないためです。実務でもGradleがよく使われている印象です。
 
@@ -183,11 +180,11 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/build.gradle.k
 
 `build.gradle.kts`を完成版と同じ内容に更新したら「すべてのGradle プロジェクトを同期」ボタンで`build.gradle.kts`のライブラリやプラグインを反映できます。
 
-![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)<br><br>
+![すべてのGradle プロジェクトを同期](images/gradle_syncro.png)
 
 Gradle同期時に`The detekt plugin found some problems`という警告が出ますが、これはdetektの設定が未完了なためなので無視してOKです。
 
-![detektの警告](images/detekt_alert.png)<br><br>
+![detektの警告](images/detekt_alert.png)
 
 ## Docker環境構築
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
@@ -247,7 +244,7 @@ Makefileは複数のコマンドや変数を使ってコマンドを簡略化す
 
 データを入れたら、[TablePlus](https://tableplus.com/)などのDBクライアントツールで`aws_test`テーブルのテストデータを確認できればOKです。
 
-![テストデータ](images/app_db_data.png)<br><br>
+![テストデータ](images/app_db_data.png)
 
 DBのDockerコンテナはマウントによるデータ永続化をしていません。Dockerコンテナを停止するとテストデータは削除されます。
 
@@ -311,12 +308,12 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 次に、IntelliJで`.envrc`の環境変数を使うために実行/デバッグ構成の環境変数の設定で`.envrc`を選択して適用しましょう。
 
-![IntelliJの環境変数設定](images/IntelliJ_env_file_setting.png)<br><br>
+![IntelliJの環境変数設定](images/IntelliJ_env_file_setting.png)
 
 ## Spring Bootアプリの起動確認
 ここまでの設定がうまくいっているかSpring Bootアプリを起動して確かめましょう。IntelliJの右上のApiApplicationの起動ボタンで起動できます。([DBを立ち上げて](#db_exec)いないと起動失敗します)
 
-![IntelliJのアプリ起動ボタン](images/intellij_app_execute_button.png)<br><br>
+![IntelliJのアプリ起動ボタン](images/intellij_app_execute_button.png)
 
 コンソールに以下のような表示が出れば起動成功です。
 
@@ -326,7 +323,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 この状態でブラウザから`localhost:8080`へアクセスしても、ルートのエンドポイントに何も設定していないので404エラーになります。
 
-![404エラーページ](images/404_error_page.png)<br><br>
+![404エラーページ](images/404_error_page.png)
 
 ルートのエンドポイントでDBのデータを返すようにしましょう。
 
@@ -349,7 +346,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 ## APIでDBデータを取得して返す動作確認
 アプリを再起動して`localhost:8080`へアクセスすると、APIがDBから取得したデータを返していることが確認できます。
 
-![APIのデータ取得成功画面](images/api_response_success.png)<br><br>
+![APIのデータ取得成功画面](images/api_response_success.png)
 
 「プリティ　プリント」という表示は私が使っている[Braveブラウザ](https://brave.com/ja/)が出しているもので、アプリとは無関係です。
 
@@ -386,11 +383,11 @@ gradlewコマンドの実態は`api/gradlew`にあるシェルスクリプトフ
 ## IntelliJにdetektプラグインをインストール
 ここまでの手順で、コマンドによるdetektの静的解析を実行できるようになりました。ですが、IntelliJでdetektのハイライトを出すためにはdetektプラグインが必要です。IntelliJの設定からdetektプラグインをインストールして適用しましょう。
 
-![IntelliJのdetektプラグイン](images/intellij_detekt_plugin.png)<br><br>
+![IntelliJのdetektプラグイン](images/intellij_detekt_plugin.png)
 
 プラグインを適用するとdetektの設定ができるようになります。以下のように設定し、Configuration fileとして`config/detekt/detekt.yml`を追加して適用します。
 
-![detektプラグインの設定](images/detekt_plugin_setting.png)<br><br>
+![detektプラグインの設定](images/detekt_plugin_setting.png)
 
 ## detektの動作確認
 適当なファイルで適当にスペースを入れ、以下のようにdetektのハイライトが出ればOKです。
@@ -443,11 +440,11 @@ fun main(args: Array<String>) {
 
 ファイル単位でのdetekt実行は右クリックで可能です。
 
-![ファイル単位のdetekt実行](images/file_target_detekt.png)<br><br>
+![ファイル単位のdetekt実行](images/file_target_detekt.png)
 
 detektのフォーマットはよく使うので、私は`Ctrl + A`のショートカットを割り当てています。
 
-![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)<br><br>
+![detektのフォーマットのショートカット設定](images/detekt_format_shortcut.png)
 
 保存時に自動フォーマットが理想ですが、別途プラグインやツールが必要で面倒なため、私はショートカットを使っています。
 
@@ -530,7 +527,7 @@ aws-practice-api
 
 Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスするとIntelliJのアプリ起動時と同じ画面が表示されます。
 
-![APIのデータ取得成功画面](images/api_response_success.png)<br><br>
+![APIのデータ取得成功画面](images/api_response_success.png)
 
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
@@ -574,15 +571,15 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 
 手動実行で動作確認もできます。自身のリポジトリのActionsタブ → Weekly Trivy Scan → Run workflowをクリックすれば手動実行可能です。
 
-![Github Actionsの脆弱性チェック手動実行](images/trivy_manual_exec.png)<br><br>
+![Github Actionsの脆弱性チェック手動実行](images/trivy_manual_exec.png)
 
 脆弱性チェックの結果はActionsタブのトップページに表示されます。緑のチェックは脆弱性なし、赤のバツは脆弱性ありです。
 
-![脆弱性チェック結果](images/security_check_result.png)<br><br>
+![脆弱性チェック結果](images/security_check_result.png)
 
 またワークフローの詳細画面からチェック結果詳細をテキストファイルでダウンロードもできます。
 
-![脆弱性チェック結果のダウンロード](images/security_check_result_download.png)<br><br>
+![脆弱性チェック結果のダウンロード](images/security_check_result_download.png)
 
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
