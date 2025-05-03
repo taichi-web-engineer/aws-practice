@@ -10,13 +10,13 @@
 - PostgreSQL
 - IntelliJ IDEA
 
-で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
+で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。<br><br>
 
-(後日公開予定)
+(後日公開予定)<br><br>
 
-バックエンドのGithubリポジトリは以下です。
+バックエンドのGithubリポジトリは以下です。<br><br>
 
-https://github.com/taichi-web-engineer/aws-practice
+https://github.com/taichi-web-engineer/aws-practice<br><br>
 
 実務レベルのAWS Webアプリ環境構築が目的なので、アプリの機能は最低限しか実装しません。機能はKotlin、Spring BootでDBからデータを取得して返すAPIを用意するのみです。
 
