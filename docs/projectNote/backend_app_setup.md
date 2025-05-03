@@ -1,6 +1,6 @@
 # 実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化
 
-![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
+![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)<br><br>
 
 エンジニア歴7年目フリーランスエンジニアのたいち([@taichi_hack_we](https://x.com/taichi_hack_we))です。<br>
 <br>
@@ -12,7 +12,7 @@
 - PostgreSQL
 - IntelliJ IDEA
 
-で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
+で、バックエンドAPIの環境構築をしてDockerコンテナ化することです。環境変数や静的解析、脆弱性チェックなど実務レベルの環境構築手順がわかります。本記事に続く以下の記事ではこのバックエンドAPIを使って実務レベルのAWS構成を構築します。
 
 (後日公開予定)
 
