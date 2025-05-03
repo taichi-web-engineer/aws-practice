@@ -1,4 +1,5 @@
-# 実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化
+<title>実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化</title>
+
 ![実務レベル環境構築ハンズオン](images/work_level_env_setup_handson.png)
 
 こんにちは、フリーランスエンジニアのたいち（[@taichi_hack_we](https://x.com/taichi_hack_we)）です。
@@ -10,7 +11,7 @@ Githubリポジトリは以下です。
 
 https://github.com/taichi-web-engineer/aws-practice
 
-## aws-practiceリポジトリ作成
+# aws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
 ![Githubでaws-practiceのリポジトリ作成](images/create_aws_practice_repository.png)
@@ -22,8 +23,8 @@ git clone git@github.com:taichi-web-engineer/aws-practice.git
 
 以降、`aws-practice`ディレクトリを**ルート**と呼びます。
 
-##  不要ファイルをcommit対象から除外する`.gitignore`
-### グローバルな`gitignore`
+#  不要ファイルをcommit対象から除外する`.gitignore`
+## グローバルな`gitignore`
 macOSの一時ファイルなどを全リポジトリのcommit対象から除外するため、`~/.config/git/ignore`を作成します。
 ベースは[GitHub公式macOS用テンプレート](https://github.com/github/gitignore/blob/main/Global/macOS.gitignore)です。
 さらに環境変数管理ツールdirenv(詳細は後で解説)の設定ファイル`.envrc`を`ignore`に追加します。
@@ -57,7 +58,7 @@ Temporary Items
 .envrc
 ```
 
-### リポジトリ用`.gitignore`
+## リポジトリ用`.gitignore`
 ルート直下に`.gitignore`置きます。
 `.gitignore`の内容はChatGPT o3に以下のプロンプトで考えてもらいました。
 
@@ -71,8 +72,8 @@ o3の回答を調整した最終版が以下です。グローバルなgitignore
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
 
-## Kotlin、Spring Bootプロジェクトの作成
-[Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でZIPをダウンロードし、ルートに<span id="spring_initializr_setting">展開</span>します。
+# Kotlin、Spring Bootプロジェクトの作成
+[Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)で、以下設定でZIPをダウンロードし、ルートに展開します。
 
 ![Spring Initializrの設定](images/spring_initializr_setting.png)
 
@@ -89,7 +90,7 @@ GroupはAWSで取得するドメインをもとに設定します。私は`aws-p
 
 DependenciesにはAPI、DB設定に必要なツールを追加しました。
 
-## 依存ライブラリを最新のLTS(安定版)に更新
+# 依存ライブラリを最新のLTS(安定版)に更新
 Kotlin、Spring Bootなど、各ライブラリのバージョンは`api/build.gradle.kts`で以下のように定義されています。
 ```kotlin
 plugins {
@@ -167,8 +168,8 @@ Gradle同期時に`The detekt plugin found some problems`という警告が出�
 
 ![detektの警告](images/detekt_alert.png)
 
-## Docker & DB環境構築
-### Docker環境構築
+# Docker & DB環境構築
+## Docker環境構築
 Dockerを使うため、[Docker Desktop](https://www.docker.com/ja-jp/products/docker-desktop/)か[OrbStack](https://orbstack.dev/)をインストールします。Appleシリコン製のMacユーザーはOrbStackを圧倒的におすすめします。OrbStackはDocker Desktopと同じ機能で動作が軽くて速いからです。詳細は以下の記事を参照してください。
 
 https://qiita.com/shota0616/items/5b5b74d72272627e0f5a
@@ -193,7 +194,7 @@ Common Commands:
 
 Docker Desktopを使っている方は以降のOrbStackをDocker Desktopに読み替えてください。
 
-### データベース環境構築
+## データベース環境構築
 [私のaws-practiceのGithubリポジトリ](https://github.com/taichi-web-engineer/aws-practice)から`aws-practice/ops`、`aws-practice/Makefile`を取得して自身の`aws-practice`の同じパスに配置してください。
 
 `aws-practice/ops/db-migrator/README.md`をもとにDB環境構築をします。知り合いのエンジニアが作成したGoのDBマイグレーションツールが使いやすいので活用しています。
@@ -244,7 +245,7 @@ DBを使うときは<span id="db_exec">以下手順</span>でDB環境を復元�
  4. go run main.go
  5. make restore DB=aws_practice
 
-## direnvで環境変数の設定
+# direnvで環境変数の設定
 DBのパスワードなど、Gitにコミットしたくないセキュアな情報は環境変数で管理しましょう。[direnv](https://direnv.net/)というディレクトリごとに環境変数を設定できるツールを使います。
 
 https://zenn.dev/masuda1112/articles/2024-11-29-direnv
@@ -273,7 +274,7 @@ export DB_USERNAME=postgres
 
 `.envrc`を保存したら`direnv allow .`を実行すれば`direnv`で環境変数を使う準備完了です。
 
-## Spring BootアプリのDB接続設定
+# Spring BootアプリのDB接続設定
 Spring BootアプリのDB接続情報は`api/src/main/resources/application.properties`で設定します。ただ、`application.properties`よりもyaml形式の`application.yml`の方が階層構造で設定がわかりやすいのでリネームしてください。
 
 リネーム後、`application.yml`に以下の内容をコピペします。
@@ -294,7 +295,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 ![IntelliJの環境変数設定](images/IntelliJ_env_file_setting.png)
 
-## Spring Bootアプリの起動確認
+# Spring Bootアプリの起動確認
 ここまでの設定がうまくいっているかSpring Bootアプリを起動して確かめましょう。IntelliJの右上のApiApplicationの起動ボタンで起動できます。([DBを立ち上げて](#db_exec)いないと起動失敗します)
 
 ![IntelliJのアプリ起動ボタン](images/intellij_app_execute_button.png)
@@ -309,8 +310,8 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 ![404エラーページ](images/404_error_page.png)
 
-## ルートのエンドポイントでDBのデータを返すようにする
-以下4つのファイルを[私のaws-practiceリポジトリ](https://github.com/taichi-web-engineer/aws-practice)と同じパスに配置してください。各ファイルの`package com.awsPracticeTaichi`の部分は[Spring InitializrのProject MetadataのGroup](#spring_initializr_setting)で自身で設定した値に書き換えましょう。
+# ルートのエンドポイントでDBのデータを返すようにする
+以下4つのファイルを[私のaws-practiceリポジトリ](https://github.com/taichi-web-engineer/aws-practice)と同じパスに配置してください。各ファイルの`package com.awsPracticeTaichi`の部分は[Spring InitializrのProject MetadataのGroup](#アンカーリンクに置き換え)で自身で設定した値に書き換えましょう。
 
 - [api/presentation/ApiController.kt](https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/kotlin/com/awsPracticeTaichi/api/presentation/ApiController.kt)
 - [api/usecase/ApiUsecase.kt](https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/kotlin/com/awsPracticeTaichi/api/usecase/ApiUsecase.kt)
@@ -325,14 +326,14 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/src/main/resou
 
 といった感じ。
 
-## APIでDBデータを取得して返す動作確認
+# APIでDBデータを取得して返す動作確認
 アプリを再起動して`localhost:8080`へアクセスすると、APIがDBから取得したデータを返していることが確認できます。
 
 ![APIのデータ取得成功画面](images/api_response_success.png)
 
 「プリティ　プリント」という表示は私が使っている[Braveブラウザ](https://brave.com/ja/)が出しているもので、アプリとは無関係です。
 
-## 静的解析ツールdetekt導入
+# 静的解析ツールdetekt導入
 Kotlin、Spring Boot環境では[detekt](https://detekt.dev/)という静的解析ツール(LinterかつFormatter)をよく使います。
 
 ![detektの使用例](images/detekt_demo.gif)
@@ -360,7 +361,7 @@ gradlew detektGenerateConfig
 
 gradlewコマンドの実態は`api/gradlew`にあるシェルスクリプトファイルです。なのでこれを実行するためには`./gradlew detektGenerateConfig`が正しいコマンドになります。コマンドが実行できると`api/config/detekt/detekt.yml`が生成され、detekt設定は完了です。
 
-## IntelliJにdetektプラグインをインストール
+# IntelliJにdetektプラグインをインストール
 ここまでの手順で、コマンドによるdetektの静的解析を実行できるようになりました。ですが、IntelliJでdetektのハイライトを出すためにはdetektプラグインが必要です。IntelliJの設定からdetektプラグインをインストールして適用しましょう。
 
 ![IntelliJのdetektプラグイン](images/intellij_detekt_plugin.png)
@@ -369,7 +370,7 @@ gradlewコマンドの実態は`api/gradlew`にあるシェルスクリプトフ
 
 ![detektプラグインの設定](images/detekt_plugin_setting.png)
 
-## detektの動作確認
+# detektの動作確認
 適当なファイルで適当にスペースを入れ、以下のようにdetektのハイライトが出ればOKです。
 
 ![detektの使用例](images/detekt_demo.gif)
@@ -428,7 +429,7 @@ detektのフォーマットはよく使うので、私は`Ctrl + A`のショー�
 
 保存時に自動フォーマットが理想ですが、別途プラグインやツールが必要で面倒なため、私はショートカットを使っています。
 
-## detektの静的解析をcommit時に自動実行する
+# detektの静的解析をcommit時に自動実行する
 [aws-practice/.githooks/pre-commit](https://github.com/taichi-web-engineer/aws-practice/blob/main/.githooks/pre-commit)にはcommit時にdetektのチェックおよびフォーマットをかけるスクリプトを書いています。commit時にdetektを実行すれば、フォーマットの整っていないコードがcommitされることはありません。
 
 スクリプトの内容は[detekt公式Docs](https://detekt.dev/docs/gettingstarted/git-pre-commit-hook/)をもとにしています。
@@ -466,7 +467,7 @@ BUILD FAILED in 436ms
 ***********************************************
 ```
 
-## アプリをDockerコンテナ化
+# アプリをDockerコンテナ化
 AWSのFargateでKotlin、Spring Bootアプリを動かすにはDockerコンテナ化する必要があります。Gensparnkスーパーエージェントで`Dockerfile`を作成しましょう。
 
 「kotlin、springbootアプリケーションをDockerコンテナ化するDockerfileのベストプラクティスを教えてください」というプロンプトでひな型を作成します。
@@ -481,7 +482,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/api/Dockerfile
 
 https://github.com/taichi-web-engineer/aws-practice/blob/main/api/.dockerignore
 
-## Dockerコンテナでアプリを動かす動作確認
+# Dockerコンテナでアプリを動かす動作確認
 Dockerコンテナで正常にアプリが動くか動作確認をしましょう。まず`aws-practice/api`ディレクトへ移動します。
 
 ```bash
@@ -514,7 +515,7 @@ Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスす�
 
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
-## Dockerイメージの脆弱性チェック
+# Dockerイメージの脆弱性チェック
 アプリのDockerイメージに脆弱性があると攻撃される危険があります。[Trivy](https://trivy.dev/latest/)というOSSでイメージの脆弱性チェックをしましょう。
 
 まずTrivyをインストールします。
@@ -537,7 +538,7 @@ Legend:
 - '0': Clean (no security findings detected)
 ```
 
-## 脆弱性チェックをGithub Actionsで定期実行する
+# 脆弱性チェックをGithub Actionsで定期実行する
 定期的に手動で脆弱性チェックをするのはしんどいです。なのでGithub Actionsでtrivyを週1回0時に定期実行するようにしましょう。
 
 今回もChatGPT o3にやり方を聞きました。
@@ -566,7 +567,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
-## 次回：AWS環境構築
+# 次回：AWS環境構築
 次回は今回作成したバックエンドAPIを使ったAWS環境構築します。お楽しみに！
 
 (後日公開予定)
