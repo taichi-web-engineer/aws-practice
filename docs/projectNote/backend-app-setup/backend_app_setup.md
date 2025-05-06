@@ -1,6 +1,4 @@
-<title>実務レベルのKotlin、Spring BootによるAPI環境構築とDockerコンテナ化</title>
-
-![実務レベル環境構築ハンズオン](https://storage.googleapis.com/zenn-user-upload/eedcfd4a551b-20250504.png)
+![実務レベル環境構築ハンズオン](https://storage.googleapis.com/zenn-user-upload/6db148f9e68d-20250507.png)
 
 こんにちは、フリーランスエンジニアのたいち（[@taichi_hack_we](https://x.com/taichi_hack_we)）です。
 この記事では**Kotlin** / **Spring Boot** / **PostgreSQL**によるシンプルなバックエンドAPIを作成し、**Docker**でコンテナ化するまでの手順をまとめました。
@@ -15,7 +13,7 @@ https://github.com/taichi-web-engineer/aws-practice
 ## aws-practiceリポジトリ作成
 [Github](https://github.com/)でaws-practiceという名前でリポジトリを作成します。
 
-![Githubでaws-practiceのリポジトリ作成](https://storage.googleapis.com/zenn-user-upload/d2edf84743fd-20250504.png)
+![Githubでaws-practiceのリポジトリ作成](https://storage.googleapis.com/zenn-user-upload/06f7d623a811-20250507.png)
 
 リポジトリを作成したら`git clone`でローカルリポジトリを作成しましょう。
 ```bash
@@ -77,7 +75,7 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.gitignore
 ## Spring Initializrでプロジェクト作成
 [Spring Initializr](https://start.spring.io/#!type=gradle-project-kotlin&language=kotlin&platformVersion=3.4.5&packaging=jar&jvmVersion=21&groupId=com.awsPracticeTaichi&artifactId=api&name=api&description=API%20project%20with%20Spring%20Boot&packageName=com.awsPracticeTaichi.api&dependencies=web,data-jpa,postgresql)にアクセスし、以下設定でZIPをダウンロードしてルートに展開します。
 
-![Spring Initializrの設定](https://storage.googleapis.com/zenn-user-upload/2bdc5a19c0c7-20250504.png)
+![Spring Initializrの設定](https://storage.googleapis.com/zenn-user-upload/0d9710801301-20250507.png)
 
 `Gradle - Kotlin`を選ぶ理由は私が他のGroovyやMavenを使ったことがないためです。実務でもGradleがよく使われている印象です。
 
@@ -146,7 +144,9 @@ tasks.withType<Test> {
 
 依存ライブラリのバージョンは最新のLTSを使いたいので、Gensparkのスーパーエージェントに以下のプロンプトで修正してもらいましょう。
 
-> Tips：ChatGPTとGensparkは両方に同じプロンプトを投げ、より良い回答を採用しています
+:::message
+ChatGPTとGensparkは両方に同じプロンプトを投げ、より良い回答を採用しています
+:::
 
 ```
 以下のbuild.gradle.ktsの設定内容を最新のLTSバージョンに更新したいです
@@ -231,7 +231,7 @@ Makefileは複数のコマンドや変数を使ってコマンドを簡略化す
 
 データを入れたら、[TablePlus](https://tableplus.com/)などのDBクライアントツールで`aws_test`テーブルのテストデータを確認できればOKです。
 
-![テストデータ](https://storage.googleapis.com/zenn-user-upload/52d5f5979b56-20250504.png)
+![テストデータ](https://storage.googleapis.com/zenn-user-upload/8ca4cb81d0b4-20250507.png)
 
 DBのDockerコンテナはマウントによるデータ永続化をしていません。Dockerコンテナを停止するとテストデータは削除されます。
 
@@ -314,7 +314,7 @@ IntelliJの右上のApiApplicationの起動ボタンで起動できます。([DB
 
 この状態でブラウザから`localhost:8080`へアクセスしても、ルートのエンドポイントが未実装なので404エラーになります。
 
-![404エラーページ](https://storage.googleapis.com/zenn-user-upload/baf098f89079-20250504.png)
+![404エラーページ](https://storage.googleapis.com/zenn-user-upload/aa4fc9382d98-20250507.png)
 
 ## ルートのエンドポイントでDBのデータを返すようにする
 以下4つのファイルを[私のaws-practiceリポジトリ](https://github.com/taichi-web-engineer/aws-practice)と同じパスに配置してください。各ファイルの`package com.awsPracticeTaichi`の部分は[Spring InitializrのProject MetadataのGroup](#spring-initializr%E3%81%A7%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E4%BD%9C%E6%88%90)で自身で設定した値に書き換えましょう。
@@ -335,7 +335,7 @@ IntelliJの右上のApiApplicationの起動ボタンで起動できます。([DB
 ## APIでDBデータを取得して返す動作確認
 アプリを再起動して`localhost:8080`へアクセスすると、APIがDBから取得したデータを返していることが確認できます。
 
-![APIのデータ取得成功画面](https://storage.googleapis.com/zenn-user-upload/4ceac723455b-20250504.png)
+![APIのデータ取得成功画面](https://storage.googleapis.com/zenn-user-upload/19cea3d42b7e-20250507.png)
 
 「プリティ　プリント」という表示は私が使っている[Braveブラウザ](https://brave.com/ja/)が出しているもので、アプリとは無関係です。
 
@@ -427,7 +427,7 @@ fun main(args: Array<String>) {
 
 ファイル単位でのdetekt実行は右クリックで可能です。
 
-![ファイル単位のdetekt実行](https://storage.googleapis.com/zenn-user-upload/b7c3e509a79d-20250504.png)
+![ファイル単位のdetekt実行](https://storage.googleapis.com/zenn-user-upload/b9ce70a673fa-20250507.png =640x)
 
 detektのフォーマットはよく使うので、私は`Ctrl + A`のショートカットを割り当てています。
 
@@ -519,7 +519,7 @@ aws-practice-api
 
 Dockerコンテナ起動後、ブラウザで`localhost:8080`へアクセスするとIntelliJのアプリ起動時と同じ画面が表示されます。
 
-![APIのデータ取得成功画面](https://storage.googleapis.com/zenn-user-upload/4ceac723455b-20250504.png)
+![APIのデータ取得成功画面](https://storage.googleapis.com/zenn-user-upload/19cea3d42b7e-20250507.png)
 
 Dockerコンテナのアプリ停止は`Ctrl + C`です。
 
@@ -564,15 +564,15 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 
 手動実行で動作確認もできます。自身のリポジトリのActionsタブ → Weekly Trivy Scan → Run workflowをクリックすれば手動実行可能です。
 
-![Github Actionsの脆弱性チェック手動実行](https://storage.googleapis.com/zenn-user-upload/cfad9679e67a-20250504.png)
+![Github Actionsの脆弱性チェック手動実行](https://storage.googleapis.com/zenn-user-upload/98feefa4e979-20250507.png)
 
 脆弱性チェックの結果はActionsタブのトップページに表示されます。緑のチェックは脆弱性なし、赤のバツは脆弱性ありです。
 
-![脆弱性チェック結果](https://storage.googleapis.com/zenn-user-upload/7d4fbe4294d2-20250504.png)
+![脆弱性チェック結果](https://storage.googleapis.com/zenn-user-upload/abc1efe7496c-20250507.png)
 
 またワークフローの詳細画面からチェック結果詳細をテキストファイルでダウンロードもできます。
 
-![脆弱性チェック結果のダウンロード](https://storage.googleapis.com/zenn-user-upload/164f76a3d6cd-20250504.png)
+![脆弱性チェック結果のダウンロード](https://storage.googleapis.com/zenn-user-upload/b495db13776a-20250507.png)
 
 脆弱性ありのときはメールやslack通知を飛ばしたいですが、それは後ほど対応します。
 
