@@ -196,7 +196,7 @@ IPv4 CIDRは`10.0.0.0/16`がネットワーク部が最も小さくなる設定�
   - アベイラビリティゾーン：ap-northeast-1c
   - IPv4 VPC CIDRブロック：10.0.192.0/18
 
-![サブネットの設定例](images/subnet_setting.png)
+![サブネットの設定](images/subnet_setting.png)
 
 VPCの`10.0.0.0/16`を4つのサブネットに分割する計算は以下のとおり。
 
