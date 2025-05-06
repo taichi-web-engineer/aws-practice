@@ -5,7 +5,7 @@
 こんにちは、フリーランスエンジニアのたいち（[@taichi_hack_we](https://x.com/taichi_hack_we)）です。
 この記事では**Kotlin** / **Spring Boot** / **PostgreSQL**によるシンプルなバックエンドAPIを作成し、**Docker**でコンテナ化するまでの手順をまとめました。
 
-続編（後日公開予定）では、ここで作ったAPIを**AWS**にデプロイします。
+[続編](https://zenn.dev/taichi_hack_we/articles/b2e94844c6b08d)では、ここで作ったAPIを**AWS**にデプロイします。
 
 Githubリポジトリは以下です。
 
@@ -579,4 +579,4 @@ https://github.com/taichi-web-engineer/aws-practice/blob/main/.github/workflows/
 # 次回：AWS環境構築
 次回は今回作成したバックエンドAPIを使ったAWS環境構築します。お楽しみに！
 
-(後日公開予定)
+https://zenn.dev/taichi_hack_we/articles/b2e94844c6b08d
