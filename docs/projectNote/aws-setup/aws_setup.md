@@ -1,6 +1,4 @@
-<title>実務レベルのAWS Webアプリ構築ハンズオン</title>
-
-![AWS構成図](images/aws_architecture.png)
+![AWS構成図](https://storage.googleapis.com/zenn-user-upload/6312af76aaff-20250506.png)
 
 こんにちは、フリーランスエンジニアのたいち（[@taichi_hack_we](https://x.com/taichi_hack_we)）です。
 今回は前回の記事↓で作成したKotlin、Spring BootバックエンドAPIを使って上記の実務レベルAWS構成でWebアプリを構築していきます。
@@ -43,7 +41,7 @@ https://techblog.ap-com.co.jp/entry/2024/04/11/090357
 
 検証、本番の許可セットポリシーが同じ`AdministratorAccess`なのに検証、本番で許可セットをそれぞれ用意している理由は、ログイン後のAWSマネジメントコンソールで許可セット名が表示されるためです。`aws-practice-stg`のように許可セット名に環境名が含まれていれば、自分が今いる環境がひと目でわかります。
 
-![AWSマネジメントコンソールのユーザー表示](images/aws_console_user_display.png)
+![AWSマネジメントコンソールのユーザー表示](https://storage.googleapis.com/zenn-user-upload/ec3c298a96f7-20250506.png)
 
 上記の設定が完了すると以下手順で各環境にログインできるようになります。
 
@@ -51,9 +49,9 @@ https://techblog.ap-com.co.jp/entry/2024/04/11/090357
 2. ユーザID、パスワードでログイン
 3. AWS access portalから好きな環境へ入る
 
-![ユーザログイン画面](images/aws_user_login.png)
+![ユーザログイン画面](https://storage.googleapis.com/zenn-user-upload/6d20d1d6da09-20250506.png)
 
-![AWS access portal](images/aws_access_portal.png)
+![AWS access portal](https://storage.googleapis.com/zenn-user-upload/d5759df0391a-20250506.png)
 
 環境を切り替えたいときは再度AWS access portalから好きな環境へ入ります。
 
@@ -67,14 +65,14 @@ AWS環境構築でAWS CLIを使う場面があるので設定します。
 - AWS マネジメントコンソールへのユーザーアクセスを提供する：チェックなし
 - 許可ポリシー：AdministratorAccess
 
-![AWS CLI用のIAMユーザー設定](images/aws_cli_user_setting.png)
+![AWS CLI用のIAMユーザー設定](https://storage.googleapis.com/zenn-user-upload/22dca11fe9a5-20250506.png)
 
 ユーザー名が`aws-practice-terraform-stg`なのは、これから構築するAWS構成をTerraform管理するときにも使うユーザーだからです。マネジメントコンソールへのアクセスはセキュリティのために提供しません。さまざまなAWSリソースを扱うので`AdministratorAccess`権限を設定します。
 
 ## IAMユーザーのアクセスキー作成
 自分のPCからAWSリソースへアクセスするためのアクセスキーを作成します。
 
-![アクセスキー作成ボタン](images/access_key_create_button.png)
+![アクセスキー作成ボタン](https://storage.googleapis.com/zenn-user-upload/1e65cb23721f-20250506.png)
 
 ユースケースにコマンドラインインターフェースを選択し、アクセスキーのcsvファイルをダウンロードして完了をしましょう。csvファイルはIAMユーザーを使うために必要なので保管してください。
 
@@ -150,7 +148,7 @@ output = json
 `AWS_PROFILE`という環境変数に`credentials`で設定したユーザー名を設定すると、AWS CLIが`credentials`と`config`の内容を読み込みます。
 
 ```bash
-export export AWS_PROFILE=aws-practice-terraform-stg
+export AWS_PROFILE=aws-practice-terraform-stg
 ```
 
 `AWS_PROFILE`の設定ができたら以下のコマンドでAWS CLIが使えるか試しましょう。
@@ -174,7 +172,7 @@ aws iam list-users --output table
 # VPC作成
 AWSのプライベートなネットワークであるVPCを作成します。設定内容は以下のとおり。
 
-![VPCの設定](images/vpc_setting.png)
+![VPCの設定](https://storage.googleapis.com/zenn-user-upload/36b59c5971e2-20250506.png)
 
 IPv4 CIDRは`10.0.0.0/16`がネットワーク部が最も小さくなる設定値です。ネットワーク部を最小にすることで、VPC内により多くのIPアドレスを作成できます。
 
@@ -196,7 +194,7 @@ IPv4 CIDRは`10.0.0.0/16`がネットワーク部が最も小さくなる設定�
   - アベイラビリティゾーン：ap-northeast-1c
   - IPv4 VPC CIDRブロック：10.0.192.0/18
 
-![サブネットの設定](images/subnet_setting.png)
+![サブネットの設定](https://storage.googleapis.com/zenn-user-upload/595ee0a708f0-20250506.png)
 
 VPCの`10.0.0.0/16`を4つのサブネットに分割する計算は以下のとおり。
 
