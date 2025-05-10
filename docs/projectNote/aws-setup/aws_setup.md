@@ -57,6 +57,17 @@ AWSリソースに付ける環境名はsuffixで本番：`-prd`、検証：`-stg
 
 環境を切り替えたいときは再度AWS access portalから好きな環境へ入ります。
 
+:::message
+以降の操作は特に記載がない限り`aws-practice-stg`アカウントで実施してください。セキュリティのため、ルートアカウントは最初に必要なユーザー、アカウントを作成するとき以外使いません。
+:::
+
+# `aws-practice-stg`アカウントのリージョンを東京にする
+`aws-practice-stg`にログインしたら、最初に画面右上から`東京 ap-northeast-1`リージョンを選択します。
+
+![東京リージョンを選択](images/aws_account_region_select.png)
+
+以降のAWSリソースは特に記載がない限り東京リージョンで作成してください。
+
 # AWS CLIを使えるようにする
 AWS環境構築でAWS CLIを使う場面があるので設定します。
 
@@ -215,17 +226,171 @@ VPCの`10.0.0.0/16`を4つのサブネットに分割する計算は以下のと
 
 ![インターネットゲートウェイの作成](images/internet_gateway_create.png)
 
-# NATゲートウェイ
+作成したインターネットゲートウェイをVPCにアタッチしましょう。
+
+![インターネットゲートウェイのVPCアタッチ](images/internet_gateway_vpc_attach.png)
+# ルートテーブル作成
+## プライベートサブネット用
+以下設定でルートテーブルを作成します。
+
+- 名前：aws-practice-rtb-private-stg
+- VPC：aws-practice-stg
+
+![ルートテーブル作成](images/create_private_subnet_route_table.png)
+
+作成したルートテーブルをプライベートサブネットに関連付けましょう。
+
+![ルートテーブルとプライベートサブネットを関連付ける](images/private_route_subnet_link.png)
+
+作成したプライベートサブネット用ルートテーブルをメインルートテーブルにしておくと、サブネット作成時のデフォルトルートテーブルになります。サブネットとルートテーブル関連付けを忘れても通信がインターネットに向かないので安全です。
+
+![メインルートテーブルの設定](images/main_route_table_setting.png)
+
+## パブリックサブネット用
+以下設定でルートテーブルを作成します。
+
+- 名前：aws-practice-rtb-public-stg
+- VPC：aws-practice-stg
+
+そして`0.0.0.0/0`インターネットゲートウェイに向けたルートを追加します。
+
+![ルートテーブルのルートにインターネットゲートウェイ追加](images/route_table_add_internet_gateway_route.png)
+
+作成したルートテーブルをパブリックサブネットに関連付けましょう。
+
+![ルートテーブルとパブリックサブネットを関連付ける](public_route_subnet_link.png)
+
+# RDS作成
+RDSに必要なAWSリソースを作成していきます。
+## RDS用セキュリティグループ
+### セキュリティグループ設計のベストプラクティス
+セキュリティグループ設計は1サービス1セキュリティグループがベストプラクティスです。1サービス1セキュリティグループはシンプルでわかりやすく、どこからの通信を許可しているのかひと目でわかります。
+
+たとえば、
+
+- WebサーバーEC2とWebサーバーEC2用セキュリティグループ
+- RDSとRDS用セキュリティグループ
+
+があるとします。この状態でRDS用セキュリティグループのインバウンドルールにWebサーバー用EC2セキュリティグループのみが設定されていれば、RDSはWebサーバーからの通信のみ許可していることがすぐ理解できます。
+
+1つのサービスに1つのセキュリティグループがわかりやすく運用しやすい設計です。
+
+### 作成
+
+
+# NATゲートウェイについて理解する
 ## 役割と使用例
 NATゲートウェイは**サブネットから外への通信のみ許可**します。許可された通信のresponseも許可されます。ですがインターネットゲートウェイと違い、**外からサブネットへの通信は許可されません**。
 
 なのでプライベートサブネットのAWSリソースのセキュリティを保ちつつ、サブネット外と通信したいときに使います。たとえばプライベートサブネットのECSタスクがNAT経由でECRにアクセスするといった使い方ができます。
 
 ## コスト対策
+NATゲートウェイは[1時間あたり$0.062、処理データ1GBあたり$0.062](https://aws.amazon.com/jp/vpc/pricing/)のコストがかかります。1ドル150円で計算すると、つけっぱなしで処理データが0でも月7000円弱の費用です。
 
-## 作成
-さっそくNATゲートウェイを作成しましょう。
+個人利用で月7000円はキツいので、本記事ではコストが10分の1ほどになるNATインスタンスを使います。他のコスト対策として、難易度は上がりますがVPC Endpointを使う方法もあります。
 
-## AWSのベストプラクティスは冗長化推奨
+:::message
+実務ではフルマネージドなNATゲートウェイを使うことがほとんどです
+:::
+
+## NATゲートウェイの設定例
+実務で扱えるようになるため、NATゲートウェイの設定を理解しましょう。本記事のAWS構成でNATゲートウェイを使う場合、以下の設定になります。
+
+- 名前：aws-practice-nat-1a
+- サブネット：public-subnet-1a-stg
+- 接続タイプ：パブリック
+- Elastic IP割り当てID：あり
+- タグ：Name aws-practice-nat-1a(自動入力される)
+
+![NATゲートウェイの設定](images/nat_gateway_setting.png)
+
+プライベートサブネットのAWSリソースのインターネット接続が目的の場合、NATゲートウェイはパブリックサブネットに配置します。通信がプライベートサブネット → NAT → インターネットの順に流れるためです。
+またElastic IPの割り当ても必須です。インターネット通信のためにはパブリックなIPアドレスが必要だからです。
+
+:::message
+設定の理解が目的なので実際にNATゲートウェイを作成する必要はありません
+:::
+
+## AWSのベストプラクティスは複数AZでの冗長化推奨
+NATゲートウェイはAZ内で冗長化されているので、使っているNATで障害が起きてもシステムを維持できます。ただAZ障害が起こるとプライベートサブネットのAWSリソースは全てNATを介した通信ができなくなります。そのためAWSのベストプラクティスとして複数AZでのNAT冗長化が推奨されています。
+
+# NATインスタンス作成
+## セキュリティグループ作成
+NATインスタンス用のセキュリティグループを作成します。以下のようにプライベートサブネットからのインバウンド通信を許可します。
+
+- セキュリティグループ名：aws-practice-nat-stg
+- 説明：Managed by Terraform(今後Terraformで設定する値をあらかじめ登録)
+- VPC：aws-practice-stg
+- インバウンドルール1つめ
+  - タイプ：すべてのトラフィック
+  - ソース：カスタム 10.0.128.0/18(private-subnet-1a-stgのIP)
+- インバウンドルール2つめ
+  - タイプ：すべてのトラフィック
+  - ソース：カスタム 10.0.192.0/18(private-subnet-1c-stgのIP)
+- アウトバウンドルール(デフォルト)
+  - タイプ：すべてのトラフィック
+  - 送信先：カスタム 0.0.0.0/0
+
+![NATインスタンスのセキュリティグループ](images/nat_instance_security_group.png)
+
+## NATインスタンスにSession ManagerでアクセスするためのIAMロールを設定
+`AmazonSSMManagedInstanceCore`ポリシーを持ったIAMロールを作成します。このロールはあとでNATインスタンスに設定します。
+
+`AmazonSSMManagedInstanceCore`ポリシーを持ったIAMロールが必要な理由はNATインスタンスにSession Managerで接続するのに必要だからです。IAMロールの設定内容は以下のとおり。
+
+- 信頼されたエンティティタイプ：AWSのサービス
+- サービスまたはユースケース：EC2
+- 許可ポリシー：AmazonSSMManagedInstanceCore
+- ロール名：aws-practice-nat-stg
+
+![NATインスタンス用のIAMロール設定1](images/nat_instance_iam_role_setting1.png)
+
+![NATインスタンス用のIAMロール設定2](images/nat_instance_iam_role_setting2.png)
+
+![NATインスタンス用のIAMロール設定3](images/nat_instance_iam_role_setting3.png)
+
+:::message
+NATインスタンスにSSH接続することも可能です。ですが22番ポート開放とSSHキーが不要という点でSession Managerの方がセキュアです
+:::
+
+## EC2インタンス作成
+NATインスタンスとして使うEC2インスタンスを以下設定で作成します。
+
+- 名前：aws-practice-nat-1a-stg
+- AMI：Amazon Linux 2023 AMI
+- アーキテクチャ：64ビット(x86)
+- インスタンスタイプ：t2.micro
+- VPC：aws-practice-stg
+- サブネット：public-subnet-1a-stg
+- パブリックIPの自動割り当て：有効化
+- セキュリティグループ：aws-practice-nat-stg
+- IAMインスタンスプロフィール：aws-practice-nat-stg
+
+![NATインスタンス用のEC2インスタンス設定1](images/nat_ec2_setting1.png)
+
+![NATインスタンス用のEC2インスタンス設定2](images/nat_ec2_setting2.png)
+
+![NATインスタンス用のEC2インスタンス設定3](images/nat_ec2_setting3.png)
+
+IAMインスタンスプロフィールでSession ManagerでアクセスするためのIAMロールを使っています。EC2インスタンスに直接IAMロールは紐づけられません。代わりにIAMロールが入ったIAMインスタンスプロフィールを紐づけます。
+
+:::message
+IAMインスタンスプロフィールはマネジメントコンソールでEC2用のIAMロール作成時に自動生成されます
+:::
+
+また未使用時にNATインスタンスを停止すればコスト削減ができます。
+
+
+
+
+
+
+そして`0.0.0.0/0`をNATインスタンスに向けたルートを追加します。
+
+![ルートテーブルのルートにNATインスタンス追加](images/route_table_add_nat_route.png)
+
+
+
+## Session Managerによる接続確認
 
 (続きは随時更新します)
