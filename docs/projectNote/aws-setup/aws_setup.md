@@ -261,8 +261,32 @@ VPCの`10.0.0.0/16`を4つのサブネットに分割する計算は以下のと
 ![ルートテーブルとパブリックサブネットを関連付ける](public_route_subnet_link.png)
 
 # RDS作成
-RDSに必要なAWSリソースを作成していきます。
+RDSに必要なAWSリソースを作成します。
 ## RDS用セキュリティグループ
+以下設定でRDS用のセキュリティグループを作成します。
+
+- セキュリティグループ名：aws-practice-db-stg
+- 説明：Managed by Terraform(今後Terraformで設定する値をあらかじめ登録)
+- VPC：aws-practice-stg
+- インバウンドルール：なし
+- アウトバウンドルール：すべてのトラフィックで0.0.0.0/0(デフォルト設定)
+
+![RDSのセキュリティグループ設定](images/rds-security-group-setting.png)
+
+RDSはAPIサーバーからの通信のみを許可します。ですが、現時点でAPIサーバーはないのでインバウンドルールを一旦なしで設定します。
+
+## DBサブネットグループ
+複数AZにまたがるサブネットをDBサブネットグループとして指定することで、DBが障害時にフェイルオーバーするので冗長性が高まります。作成するDBサブネットグループは以下です。
+
+- 名前：aws-practice-db-subnet-group-stg
+- 説明：Managed by Terraform
+- VPC：aws-practice-stg
+- サブネット：private-subnet-1a-stg、private-subnet-1c-stg
+
+![DBサブネット設定](images/db_subnet_group_setting.png)
+
+DBは外部からアクセスされたくないので、プライベートサブネットを指定します。
+
 ### セキュリティグループ設計のベストプラクティス
 セキュリティグループ設計は1サービス1セキュリティグループがベストプラクティスです。1サービス1セキュリティグループはシンプルでわかりやすく、どこからの通信を許可しているのかひと目でわかります。
 
@@ -319,7 +343,7 @@ NATゲートウェイはAZ内で冗長化されているので、使っている
 NATインスタンス用のセキュリティグループを作成します。以下のようにプライベートサブネットからのインバウンド通信を許可します。
 
 - セキュリティグループ名：aws-practice-nat-stg
-- 説明：Managed by Terraform(今後Terraformで設定する値をあらかじめ登録)
+- 説明：Managed by Terraform
 - VPC：aws-practice-stg
 - インバウンドルール1つめ
   - タイプ：すべてのトラフィック
