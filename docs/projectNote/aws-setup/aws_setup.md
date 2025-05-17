@@ -64,7 +64,7 @@ AWSリソースに付ける環境名はsuffixで本番：`-prd`、検証：`-stg
 # `aws-practice-stg`アカウントのリージョンを東京にする
 `aws-practice-stg`にログインしたら、最初に画面右上から`東京 ap-northeast-1`リージョンを選択します。
 
-![東京リージョンを選択](images/aws_account_region_select.png)
+![東京リージョンを選択](https://storage.googleapis.com/zenn-user-upload/4524594d45f8-20250517.png)
 
 以降のAWSリソースは特に記載がない限り東京リージョンで作成してください。
 
@@ -224,83 +224,11 @@ VPCの`10.0.0.0/16`を4つのサブネットに分割する計算は以下のと
 # インターネットゲートウェイ作成
 パブリックサブネットのAWSリソースをインターネットにつなげるためにはインターネットゲートウェイが必要です。`aws-practice-igw-stg`という名前タグで作成してください。
 
-![インターネットゲートウェイの作成](images/internet_gateway_create.png)
+![インターネットゲートウェイの作成](https://storage.googleapis.com/zenn-user-upload/d048b79c0365-20250517.png)
 
-作成したインターネットゲートウェイをVPCにアタッチしましょう。
+作成したインターネットゲートウェイをVPC`aws-practice-stg`にアタッチしましょう。
 
-![インターネットゲートウェイのVPCアタッチ](images/internet_gateway_vpc_attach.png)
-# ルートテーブル作成
-## プライベートサブネット用
-以下設定でルートテーブルを作成します。
-
-- 名前：aws-practice-rtb-private-stg
-- VPC：aws-practice-stg
-
-![ルートテーブル作成](images/create_private_subnet_route_table.png)
-
-作成したルートテーブルをプライベートサブネットに関連付けましょう。
-
-![ルートテーブルとプライベートサブネットを関連付ける](images/private_route_subnet_link.png)
-
-作成したプライベートサブネット用ルートテーブルをメインルートテーブルにしておくと、サブネット作成時のデフォルトルートテーブルになります。サブネットとルートテーブル関連付けを忘れても通信がインターネットに向かないので安全です。
-
-![メインルートテーブルの設定](images/main_route_table_setting.png)
-
-## パブリックサブネット用
-以下設定でルートテーブルを作成します。
-
-- 名前：aws-practice-rtb-public-stg
-- VPC：aws-practice-stg
-
-そして`0.0.0.0/0`インターネットゲートウェイに向けたルートを追加します。
-
-![ルートテーブルのルートにインターネットゲートウェイ追加](images/route_table_add_internet_gateway_route.png)
-
-作成したルートテーブルをパブリックサブネットに関連付けましょう。
-
-![ルートテーブルとパブリックサブネットを関連付ける](public_route_subnet_link.png)
-
-# RDS作成
-RDSに必要なAWSリソースを作成します。
-## RDS用セキュリティグループ
-以下設定でRDS用のセキュリティグループを作成します。
-
-- セキュリティグループ名：aws-practice-db-stg
-- 説明：Managed by Terraform(今後Terraformで設定する値をあらかじめ登録)
-- VPC：aws-practice-stg
-- インバウンドルール：なし
-- アウトバウンドルール：すべてのトラフィックで0.0.0.0/0(デフォルト設定)
-
-![RDSのセキュリティグループ設定](images/rds-security-group-setting.png)
-
-RDSはAPIサーバーからの通信のみを許可します。ですが、現時点でAPIサーバーはないのでインバウンドルールを一旦なしで設定します。
-
-## DBサブネットグループ
-複数AZにまたがるサブネットをDBサブネットグループとして指定することで、DBが障害時にフェイルオーバーするので冗長性が高まります。作成するDBサブネットグループは以下です。
-
-- 名前：aws-practice-db-subnet-group-stg
-- 説明：Managed by Terraform
-- VPC：aws-practice-stg
-- サブネット：private-subnet-1a-stg、private-subnet-1c-stg
-
-![DBサブネット設定](images/db_subnet_group_setting.png)
-
-DBは外部からアクセスされたくないので、プライベートサブネットを指定します。
-
-### セキュリティグループ設計のベストプラクティス
-セキュリティグループ設計は1サービス1セキュリティグループがベストプラクティスです。1サービス1セキュリティグループはシンプルでわかりやすく、どこからの通信を許可しているのかひと目でわかります。
-
-たとえば、
-
-- WebサーバーEC2とWebサーバーEC2用セキュリティグループ
-- RDSとRDS用セキュリティグループ
-
-があるとします。この状態でRDS用セキュリティグループのインバウンドルールにWebサーバー用EC2セキュリティグループのみが設定されていれば、RDSはWebサーバーからの通信のみ許可していることがすぐ理解できます。
-
-1つのサービスに1つのセキュリティグループがわかりやすく運用しやすい設計です。
-
-### 作成
-
+![インターネットゲートウェイのVPCアタッチ](https://storage.googleapis.com/zenn-user-upload/d8dc8304499b-20250517.png)
 
 # NATゲートウェイについて理解する
 ## 役割と使用例
@@ -326,7 +254,7 @@ NATゲートウェイは[1時間あたり$0.062、処理データ1GBあたり$0.
 - Elastic IP割り当てID：あり
 - タグ：Name aws-practice-nat-1a(自動入力される)
 
-![NATゲートウェイの設定](images/nat_gateway_setting.png)
+![NATゲートウェイの設定](https://storage.googleapis.com/zenn-user-upload/2d41cc977a6f-20250517.png)
 
 プライベートサブネットのAWSリソースのインターネット接続が目的の場合、NATゲートウェイはパブリックサブネットに配置します。通信がプライベートサブネット → NAT → インターネットの順に流れるためです。
 またElastic IPの割り当ても必須です。インターネット通信のためにはパブリックなIPアドレスが必要だからです。
@@ -355,7 +283,7 @@ NATインスタンス用のセキュリティグループを作成します。�
   - タイプ：すべてのトラフィック
   - 送信先：カスタム 0.0.0.0/0
 
-![NATインスタンスのセキュリティグループ](images/nat_instance_security_group.png)
+![NATインスタンスのセキュリティグループ](https://storage.googleapis.com/zenn-user-upload/a69ad5d45cc9-20250517.png)
 
 ## NATインスタンスにSession ManagerでアクセスするためのIAMロールを設定
 `AmazonSSMManagedInstanceCore`ポリシーを持ったIAMロールを作成します。このロールはあとでNATインスタンスに設定します。
@@ -367,11 +295,11 @@ NATインスタンス用のセキュリティグループを作成します。�
 - 許可ポリシー：AmazonSSMManagedInstanceCore
 - ロール名：aws-practice-nat-stg
 
-![NATインスタンス用のIAMロール設定1](images/nat_instance_iam_role_setting1.png)
+![NATインスタンス用のIAMロール設定1](https://storage.googleapis.com/zenn-user-upload/1932d197f9a4-20250517.png)
 
-![NATインスタンス用のIAMロール設定2](images/nat_instance_iam_role_setting2.png)
+![NATインスタンス用のIAMロール設定2](https://storage.googleapis.com/zenn-user-upload/3e0fd2538f58-20250517.png)
 
-![NATインスタンス用のIAMロール設定3](images/nat_instance_iam_role_setting3.png)
+![NATインスタンス用のIAMロール設定3](https://storage.googleapis.com/zenn-user-upload/c38d3c98a608-20250517.png)
 
 :::message
 NATインスタンスにSSH接続することも可能です。ですが22番ポート開放とSSHキーが不要という点でSession Managerの方がセキュアです
@@ -390,11 +318,11 @@ NATインスタンスとして使うEC2インスタンスを以下設定で作�
 - セキュリティグループ：aws-practice-nat-stg
 - IAMインスタンスプロフィール：aws-practice-nat-stg
 
-![NATインスタンス用のEC2インスタンス設定1](images/nat_ec2_setting1.png)
+![NATインスタンス用のEC2インスタンス設定1](https://storage.googleapis.com/zenn-user-upload/2e920e388b28-20250517.png)
 
-![NATインスタンス用のEC2インスタンス設定2](images/nat_ec2_setting2.png)
+![NATインスタンス用のEC2インスタンス設定2](https://storage.googleapis.com/zenn-user-upload/f4ca4aa4baad-20250517.png)
 
-![NATインスタンス用のEC2インスタンス設定3](images/nat_ec2_setting3.png)
+![NATインスタンス用のEC2インスタンス設定3](https://storage.googleapis.com/zenn-user-upload/3bc55626fd19-20250517.png)
 
 IAMインスタンスプロフィールでSession ManagerでアクセスするためのIAMロールを使っています。EC2インスタンスに直接IAMロールは紐づけられません。代わりにIAMロールが入ったIAMインスタンスプロフィールを紐づけます。
 
@@ -404,17 +332,151 @@ IAMインスタンスプロフィールはマネジメントコンソールでEC
 
 また未使用時にNATインスタンスを停止すればコスト削減ができます。
 
+実務でNATインスタンスを使う場合、Elastic IPをつけるのが一般的です。インスタンス起動のたびにIPアドレスが変わると運用に影響が出るためです。ただ本記事ではコスト削減のためにElastic IPをつけません。
 
+## Session Managerによる接続確認
+EC2インスタンスが実行中になったら、Session Managerで接続できるか確認してください。以下のような画面が表示できればOKです。
 
+![Session Managerの接続画面](https://storage.googleapis.com/zenn-user-upload/eba3578971f7-20250517.png)
 
+## EC2でNATの設定をする
+EC2をNATとして動かすため、Session ManagerでEC2に入り、以下の記事にそって設定をしてください。
 
+実施するのは、
+
+- NAT AMIを作成する
+- 送信元/送信先チェックを無効にする
+
+の手順です。
+
+https://docs.aws.amazon.com/ja_jp/vpc/latest/userguide/work-with-nat-instances.html#create-nat-ami
+
+NATの設定ができたら設定済のEC2からAMIを作成します。本番環境のNATインスタンスで使うためです。設定内容は以下のとおり。
+
+![AMI作成の設定](https://storage.googleapis.com/zenn-user-upload/1c3fffcbeb6b-20250517.png)
+
+## NATインスタンスの動作確認
+NATインスタンスの動作確認は[参考記事のNATインスタンスをテストする](https://docs.aws.amazon.com/ja_jp/vpc/latest/userguide/work-with-nat-instances.html#nat-test-configuration)の手順でできます。
+
+また本記事の後半で書いているECSタスクの起動が正常にできれば、NATインスタンスの動作確認にもなります。ECSタスクの起動時はECRからのDockerイメージ取得などの外部通信が発生するからです。
+
+# ルートテーブル作成
+## プライベートサブネット用
+以下設定でルートテーブルを作成します。
+
+- 名前：aws-practice-rtb-private-stg
+- VPC：aws-practice-stg
+
+![ルートテーブル作成](https://storage.googleapis.com/zenn-user-upload/3f3242a31c5b-20250517.png)
 
 そして`0.0.0.0/0`をNATインスタンスに向けたルートを追加します。
 
-![ルートテーブルのルートにNATインスタンス追加](images/route_table_add_nat_route.png)
+![ルートテーブルのルートにNATインスタンス追加](https://storage.googleapis.com/zenn-user-upload/26fa24ed11fd-20250517.png)
 
+作成したルートテーブルをプライベートサブネットに関連付けましょう。
 
+![ルートテーブルとプライベートサブネットを関連付ける](https://storage.googleapis.com/zenn-user-upload/3f735d1e5ddd-20250517.png)
 
-## Session Managerによる接続確認
+作成したプライベートサブネット用ルートテーブルをメインルートテーブルにしておくと、サブネット作成時のデフォルトルートテーブルになります。サブネットとルートテーブル関連付けを忘れても通信がインターネットに向かないので安全です。
+
+![メインルートテーブルの設定](https://storage.googleapis.com/zenn-user-upload/db1b11b8573f-20250517.png)
+
+## パブリックサブネット用
+以下設定でルートテーブルを作成します。
+
+- 名前：aws-practice-rtb-public-stg
+- VPC：aws-practice-stg
+
+そして`0.0.0.0/0`インターネットゲートウェイに向けたルートを追加します。
+
+![ルートテーブルのルートにインターネットゲートウェイ追加](https://storage.googleapis.com/zenn-user-upload/e1b7dda3d18d-20250517.png)
+
+作成したルートテーブルをパブリックサブネットに関連付けましょう。
+
+![ルートテーブルとパブリックサブネットを関連付ける](https://storage.googleapis.com/zenn-user-upload/6ac10f20eac4-20250517.png)
+
+# RDS作成
+RDSに必要なAWSリソースを作成します。
+## セキュリティグループ
+### セキュリティグループ設計のベストプラクティス
+セキュリティグループ設計は1サービス1セキュリティグループがベストプラクティスです。1サービス1セキュリティグループはシンプルでわかりやすく、どこからの通信を許可しているのかひと目でわかります。
+
+たとえば、
+
+- WebサーバーEC2とWebサーバーEC2用セキュリティグループ
+- RDSとRDS用セキュリティグループ
+
+があるとします。この状態でRDS用セキュリティグループのインバウンドルールにWebサーバー用EC2セキュリティグループのみが設定されていれば、RDSはWebサーバーからの通信のみ許可していることがすぐ理解できます。
+
+1つのサービスに1つのセキュリティグループがわかりやすく運用しやすい設計です。
+
+### 作成
+以下設定でRDS用のセキュリティグループを作成します。
+
+- セキュリティグループ名：aws-practice-db-stg
+- 説明：Managed by Terraform(今後Terraformで設定する値をあらかじめ登録)
+- VPC：aws-practice-stg
+- インバウンドルール：なし
+- アウトバウンドルール：すべてのトラフィックで0.0.0.0/0(デフォルト設定)
+
+![RDSのセキュリティグループ設定](https://storage.googleapis.com/zenn-user-upload/3ee34fa41f8a-20250517.png)
+
+RDSはAPIサーバーからの通信のみを許可します。ですが、現時点でAPIサーバーはないのでインバウンドルールを一旦なしで設定します。
+
+## DBサブネットグループ
+複数AZにまたがるサブネットをDBサブネットグループとして指定することで、DBが障害時にフェイルオーバーするので冗長性が高まります。作成するDBサブネットグループは以下です。
+
+- 名前：aws-practice-db-subnet-group-stg
+- 説明：Managed by Terraform
+- VPC：aws-practice-stg
+- サブネット：private-subnet-1a-stg、private-subnet-1c-stg
+
+![DBサブネット設定](https://storage.googleapis.com/zenn-user-upload/606edd82a8cd-20250517.png)
+
+DBは外部からアクセスされたくないので、プライベートサブネットを指定します。
+
+## パラメータグループ
+RDSのパラメータグループでデータベースの設定を簡単に作成できます。以下の設定で作成しましょう。
+
+- パラメータグループ名：aws-practice-db-parameter-group-stg
+- 説明：Managed by Terraform
+- エンジンのタイプ：PostgreSQL
+- パラメータグループファミリー：postgres17
+- タイプ：DB Parameter
+
+## RDS
+以下設定でRDSを作成します。
+
+![RDS設定1](https://storage.googleapis.com/zenn-user-upload/435f026626e9-20250517.png)
+
+![RDS設定2](https://storage.googleapis.com/zenn-user-upload/e0f67925f82f-20250517.png)
+
+![RDS設定3](https://storage.googleapis.com/zenn-user-upload/e7b46a6a06d5-20250517.png)
+
+![RDS設定4](https://storage.googleapis.com/zenn-user-upload/dfccd5b34b59-20250517.png)
+
+:::message
+画像ではストレージに`汎用SSD(gp2)`を指定していますが、コスト、パフォーマンスともに優れる`汎用SSD(gp3)`を選択してください
+:::
+
+![RDS設定5](https://storage.googleapis.com/zenn-user-upload/fb59409fc944-20250517.png)
+
+![RDS設定6](https://storage.googleapis.com/zenn-user-upload/0a1145805a5e-20250517.png)
+
+![RDS設定7](https://storage.googleapis.com/zenn-user-upload/d5d10b131d5a-20250517.png)
+
+![RDS設定8](https://storage.googleapis.com/zenn-user-upload/94910a620a9c-20250517.png)
+
+![RDS設定9](https://storage.googleapis.com/zenn-user-upload/7633d96a9255-20250517.png)
+
+![RDS設定10](https://storage.googleapis.com/zenn-user-upload/240c08d6ecc9-20250517.png)
+
+![RDS設定11](https://storage.googleapis.com/zenn-user-upload/d0f43286ea72-20250517.png)
+
+:::message
+RDS作成後に`接続情報の表示`から確認できるマスターユーザー名とマスターパスワードをローカルに保存してください
+:::
+
+RDSは未使用時に停止すればコスト削減ができます。ですが7日間で自動起動してしまいます... なので後でEvent Bridge Schedulerを使って7日ごとに起動 → 停止するよう設定します。
 
 (続きは随時更新します)
