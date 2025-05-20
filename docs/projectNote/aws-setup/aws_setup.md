@@ -186,6 +186,34 @@ aws iam list-users --output table
 |+------------+--------------------------------------------------------------+|
 ```
 
+### AWS_PROFILEの自動設定
+direnvで`aws-practice`ディレクトリでは`AWS_PROFILE=aws-practice-terraform-stg`が環境変数として自動設定されるようにします。direnvについて詳しく知りたい方は以下の記事を参考にしてください。
+
+https://zenn.dev/masuda1112/articles/2024-11-29-direnv
+
+まずはaws-practiceディレクトリでdirenvの設定をします。
+
+```bash
+cd {aws-practiceへのパス}
+direnv allow
+```
+
+作成された`aws-practice/.envrc`に以下を追記しましょう。
+
+```
+export AWS_PROFILE=aws-practice-terraform-stg
+```
+
+再度`direnv allow`で追記した内容を使えるようにします。その後、別のディレクトリから再度aws-practiceディレクトリへ移動し、環境変数が自動設定されるか確認しましょう。
+
+```bash
+cd ..
+cd aws-practice
+echo $AWS_PROFILE
+```
+
+`aws-practice-terraform-stg`が表示されればOKです。
+
 # VPC作成
 AWSのプライベートなネットワークであるVPCを作成します。設定内容は以下のとおり。
 
@@ -507,5 +535,106 @@ DBのユーザーやパスワードなど、機密性のある環境変数はSec
 RDSのデフォルトユーザーをそのまま使うのは権限が強すぎてセキュリティ上良くないので、後で新しいユーザーを作成してSecrets Managerの設定値を更新します。
 
 # ECR
+[前回の記事](https://zenn.dev/taichi_hack_we/articles/84c623ebee9e86)で作成したバックエンドAPIのDockerイメージをpushするECRリポジトリを作成し、pushしてみます。
+
+## プライベートリポジトリ作成
+設定内容は以下のとおり。
+
+- リポジトリ名：aws-practice-stg
+- イメージタグのミュータビリティ：Immutable
+- 暗号化設定：AES-256
+
+![ECRの設定](backend_api_ecr_setting.png)
+
+タグはImmutableにしてコミットハッシュを使うのがセキュリティ的にも運用的にもベストプラクティスです。詳しくは以下の記事が参考になります。
+
+https://zenn.dev/levtech/articles/8feb6330f7c767
+
+## ライフサイクルポリシー設定
+ECRにpushしたイメージがたまっていくとコストがかさみます。なので最新3つのイメージのみ保持するよう、以下設定で`aws-practice-stg`のライフサイクルポリシーを作成します。
+
+- ルールの優先順位：1
+- ルールの説明：最新3つのイメージのみ保持
+- イメージのステータス：すべて
+- 一致条件：次の数値を超えるイメージ数 3
+
+## バックエンドAPIのDockerイメージをECRへpush
+[前回の記事のデータベース環境構築](https://zenn.dev/taichi_hack_we/articles/84c623ebee9e86#%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89)のところで扱ったMakefileを使ってECRへログイン、Dockerイメージbuild、ECRへのpushをします。
+
+https://github.com/taichi-web-engineer/aws-practice/blob/main/Makefile
+
+### MakefileのAWSアカウント情報更新
+Makefileの以下の箇所は私のAWSアカウントIDになっているので、自身のアカウントIDに更新してください。
+
+```makefile
+# AWS_ACCOUNT_IDを自身の情報に更新する
+AWS_ACCOUNT_ID ?= 355195805635
+```
+
+### aws-practiceプロジェクトのルートへ移動
+```bash
+cd {aws-practiceへのパス}
+```
+
+aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます。
+
+### ECRログイン
+ECRにログインするコマンドは`make docker-login ENV=stg`で、実態は以下のコマンドです。
+
+```makefile
+# ECRにログインする
+# e.g. make docker-login ENV=stg ECR_NAME=aws-practice
+docker-login: .check-env .check-ecr-name
+	aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${IMAGE_REPOSITORY_URI}
+```
+
+このECRログインコマンドはaws-practice-stgのECRリポジトリのプッシュコマンドを表示ボタンで確認できます。これから実行するDockerイメージbuild、ECRへのpushコマンドもここに書いてあるものを元に作成しています。
+
+![ECRのコマンド](ecr_command_display.png)
+
+ECRログインコマンドを実行して以下の表示が出ればOKです。
+
+```bash
+make docker-login ENV=stg
+aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 355195805635.dkr.ecr.ap-northeast-1.amazonaws.com/aws-practice-stg
+Login Succeeded
+```
+
+### Dockerイメージをbuild
+Dockerイメージbuildのコマンドは`make build-image ENV=stg DOCKERFILE_DIR=./api`で、実態は以下です。
+
+```makefile
+# Dockerイメージをビルドする
+# e.g. make build-image ENV=stg
+build-image: .check-env .check-ecr-name
+	docker build --platform=linux/amd64 -t ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH} -f ${DOCKERFILE_DIR}/Dockerfile ${DOCKERFILE_DIR}
+```
+
+`--platform=linux/amd64`を指定している理由は、このDockerコンテナを`Linux/X86_64`のFargateで動かすためです。
+
+Fargateのコストは`Linux/ARM64`の方が安いので本当はこちらを使いたいです。ですが、ARM64はGithub Actionsの有料プランでしか使えないので仕方なく`Linux/X86_64`を使います。今後の無料プランでのARM64開放に期待です。
+
+https://github.blog/jp/2024-06-07-arm64-on-github-actions-powering-faster-more-efficient-build-systems/
+
+buildコマンドを実行してエラーが出なければOKです。
+
+### ECRへpush
+buildしたDockerイメージのpushコマンドは`make push-image ENV=stg`で、実態は以下です。
+
+```makefile
+# DockerイメージをECRにpushする
+# e.g. make push-image ENV=stg
+push-image: .check-env .check-ecr-name
+	docker push ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH}
+```
+
+pushが成功すると`aws-practice-stg`のリポジトリでpushしたDockerイメージを確認できます。
+
+![ECRへのpush結果](ecr_push_result.png)
+
+### ECRログイン、Dockerイメージbuild、ECRへpushを一括実行
+
+内部リンク置き換え
+  aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます。
 
 (続きは随時更新します)

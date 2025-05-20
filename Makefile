@@ -1,8 +1,8 @@
 SHELL := /bin/bash -o pipefail
 AWS_REGION ?= ap-northeast-1
-# AWS_ACCOUNT_ID デフォルトはCloud Pratica stg accountになっているので、自身のstgのAWSアカウントIDを指定する
-AWS_ACCOUNT_ID ?= 043309350350
-AWS_PROFILE ?= cp-terraform-stg
+# AWS_ACCOUNT_IDを自身の情報に更新する
+AWS_ACCOUNT_ID ?= 355195805635
+AWS_PROFILE ?= aws-practice-terraform-stg
 
 IMAGE_REPOSITORY_BASE := ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 # ECR_NAMEが指定されていない場合は、コマンド実行時のcurrent directory名をECR_NAMEとして使用する
@@ -10,6 +10,8 @@ ECR_NAME ?= $(shell basename $(CURDIR))
 IMAGE_REPOSITORY_URI := ${IMAGE_REPOSITORY_BASE}/${ECR_NAME}-${ENV}
 # imageタグを管理するParameter Store名
 PARAMETER_STORE_NAME_IMAGE_TAG := image-tag-${ECR_NAME}-${ENV}
+
+DOCKERFILE_DIR ?= .
 
 # Gitのコミットハッシュを取得
 GIT_COMMIT_HASH ?= $(shell git rev-parse --short HEAD)
@@ -22,7 +24,7 @@ docker-login: .check-env .check-ecr-name
 # Dockerイメージをビルドする
 # e.g. make build-image ENV=stg
 build-image: .check-env .check-ecr-name
-	docker build --platform=linux/amd64 -t ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH} -f Dockerfile .
+	docker build --platform=linux/amd64 -t ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH} -f ${DOCKERFILE_DIR}/Dockerfile ${DOCKERFILE_DIR}
 
 # DockerイメージをECRにpushする
 # e.g. make push-image ENV=stg
