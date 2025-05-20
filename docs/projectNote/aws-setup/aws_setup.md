@@ -633,6 +633,13 @@ pushが成功すると`aws-practice-stg`のリポジトリでpushしたDockerイ
 ![ECRへのpush結果](ecr_push_result.png)
 
 ### ECRログイン、Dockerイメージbuild、ECRへpushを一括実行
+`make release-image ENV=stg  DOCKERFILE_DIR=./api`でECRログイン、Dockerイメージbuild、ECRへpushを一括実行できます。
+
+```makefile
+# DockerイメージをビルドしてECRにpushする
+# e.g. make release-image ENV=stg
+release-image: docker-login build-image push-image
+```
 
 内部リンク置き換え
   aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます。
