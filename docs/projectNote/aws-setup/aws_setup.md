@@ -642,6 +642,6 @@ release-image: docker-login build-image push-image
 ```
 
 内部リンク置き換え
-  aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます。
+  aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます
 
 (続きは随時更新します)
