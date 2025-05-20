@@ -54,10 +54,10 @@ COPY --from=extractor --chown=spring:spring /app/extracted/application/ ./
 EXPOSE 8080
 
 # ヘルスチェック追加
-HEALTHCHECK --interval=30s --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=4s \
   CMD wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1
 
-# コンテナ環境に最適化されたJVM設定です
+# コンテナ環境に最適化されたJVM設定
 ENTRYPOINT ["java", \
             "-XX:+UseContainerSupport", \
             "-XX:MaxRAMPercentage=75.0", \
