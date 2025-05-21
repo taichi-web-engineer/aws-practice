@@ -23,6 +23,7 @@ docker-login: .check-env .check-ecr-name
 
 # Dockerイメージをビルドする
 # e.g. make build-image ENV=stg
+# Fargateで動かすならplatformはlinux/arm64の方が安いが、Github Actionsの有料プランでしかarm64が使えないためlinux/amd64を指定
 build-image: .check-env .check-ecr-name
 	docker build --platform=linux/amd64 -t ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH} -f ${DOCKERFILE_DIR}/Dockerfile ${DOCKERFILE_DIR}
 

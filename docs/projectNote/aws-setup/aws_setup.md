@@ -544,7 +544,7 @@ RDSのデフォルトユーザーをそのまま使うのは権限が強すぎ�
 - イメージタグのミュータビリティ：Immutable
 - 暗号化設定：AES-256
 
-![ECRの設定](backend_api_ecr_setting.png)
+![ECRの設定](https://storage.googleapis.com/zenn-user-upload/33bc6da92510-20250522.png)
 
 タグはImmutableにしてコミットハッシュを使うのがセキュリティ的にも運用的にもベストプラクティスです。詳しくは以下の記事が参考になります。
 
@@ -590,7 +590,7 @@ docker-login: .check-env .check-ecr-name
 
 このECRログインコマンドはaws-practice-stgのECRリポジトリのプッシュコマンドを表示ボタンで確認できます。これから実行するDockerイメージbuild、ECRへのpushコマンドもここに書いてあるものを元に作成しています。
 
-![ECRのコマンド](ecr_command_display.png)
+![ECRのコマンド](https://storage.googleapis.com/zenn-user-upload/5f85d396c049-20250522.png)
 
 ECRログインコマンドを実行して以下の表示が出ればOKです。
 
@@ -606,15 +606,10 @@ Dockerイメージbuildのコマンドは`make build-image ENV=stg DOCKERFILE_DI
 ```makefile
 # Dockerイメージをビルドする
 # e.g. make build-image ENV=stg
+# Fargateで動かすならplatformはlinux/arm64の方が安いが、Github Actionsの有料プランでしかarm64が使えないためlinux/amd64を指定
 build-image: .check-env .check-ecr-name
 	docker build --platform=linux/amd64 -t ${IMAGE_REPOSITORY_URI}:${GIT_COMMIT_HASH} -f ${DOCKERFILE_DIR}/Dockerfile ${DOCKERFILE_DIR}
 ```
-
-`--platform=linux/amd64`を指定している理由は、このDockerコンテナを`Linux/X86_64`のFargateで動かすためです。
-
-Fargateのコストは`Linux/ARM64`の方が安いので本当はこちらを使いたいです。ですが、ARM64はGithub Actionsの有料プランでしか使えないので仕方なく`Linux/X86_64`を使います。今後の無料プランでのARM64開放に期待です。
-
-https://github.blog/jp/2024-06-07-arm64-on-github-actions-powering-faster-more-efficient-build-systems/
 
 buildコマンドを実行してエラーが出なければOKです。
 
@@ -630,7 +625,7 @@ push-image: .check-env .check-ecr-name
 
 pushが成功すると`aws-practice-stg`のリポジトリでpushしたDockerイメージを確認できます。
 
-![ECRへのpush結果](ecr_push_result.png)
+![ECRへのpush結果](https://storage.googleapis.com/zenn-user-upload/686c389271f8-20250522.png)
 
 ### ECRログイン、Dockerイメージbuild、ECRへpushを一括実行
 `make release-image ENV=stg  DOCKERFILE_DIR=./api`でECRログイン、Dockerイメージbuild、ECRへpushを一括実行できます。
@@ -640,8 +635,5 @@ pushが成功すると`aws-practice-stg`のリポジトリでpushしたDockerイ
 # e.g. make release-image ENV=stg
 release-image: docker-login build-image push-image
 ```
-
-内部リンク置き換え
-  aws-practiceへ移動すればdirenvで[AWS CLIの設定が自動適用](#)されます
 
 (続きは随時更新します)
