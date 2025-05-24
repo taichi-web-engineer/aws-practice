@@ -636,4 +636,34 @@ pushが成功すると`aws-practice-stg`のリポジトリでpushしたDockerイ
 release-image: docker-login build-image push-image
 ```
 
+# ECS
+## クラスター作成
+ECSサービスやタスクをひとまとまりで管理する空間であるクラスターを作成します。設定は以下のとおり。
+
+![クラスター設定](cluster_setting.png)
+
+インフラストラクチャオプションをFargateにする理由は、インスタンス管理が不要なのでEC2より運用負担が小さいためです。Fargateの料金はEC2より高いですが、料金以上の管理コスト削減メリットがあります。
+
+モニタリングオプションをオフにする理由はコストカットのためです。ログやCPU、メモリの分析をしたいときに都度ONにすればOKです。
+
+## ECS関連セキュリティグループ作成
+ECS関連のセキュリティグループは以下のように設定します。
+
+![ECS関連のセキュリティグループ](ecs_relate_security_gorup_setting.png)
+
+- 通信の入口となるALBでは全てのHTTPS通信を許可
+- ECSサービスではALBからのHTTP通信のみを許可
+- RDSではECSサービスからPostgresへの通信のみを許可
+
+この設定ならECSサービスやRDSが直接攻撃されることはありません。
+上記説明の通りにセキュリティグループを作成しましょう。
+
+![ALBのセキュリティグループ](alb_security_group.png)
+
+![ECSサービスのセキュリティグループ](ecs_service_security_group.png)
+
+![RDSのセキュリティグループ](rds_security_group.png)
+
+## ECSタスクロール、ECSタスク実行ロール作成
+
 (続きは随時更新します)
