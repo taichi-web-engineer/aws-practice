@@ -664,6 +664,39 @@ ECS関連のセキュリティグループは以下のように設定します�
 
 ![RDSのセキュリティグループ](rds_security_group.png)
 
-## ECSタスクロール、ECSタスク実行ロール作成
+## ECSタスク実行ロール作成
+ECSタスク実行ロールとはECSタスク起動のために必要な権限です。例えばECRへのアクセス権限や、環境変数を取得するためのS3やSecrets Managerの読み込み権限などを設定します。設定内容は以下のとおり。
+
+![ECSタスク実行ロール設定1](ecs_task_execution_role_setting1.png)
+
+![ECSタスク実行ロール設定2](ecs_task_execution_role_setting2.png)
+
+ECSタスクに対し、
+
+- ECSタスク実行
+- S3読み取り
+- Secrets Manger読み取り
+
+権限を付与しています。Secrets Manger読み取り権限は良いマネージドポリシーがないので自作します。
+
+```json:secrets-manager-read-stg
+{
+    "Statement": [
+        {
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+```
+
+Secrets Mangerの値とメタ情報の読み取り権限を設定しています。
+
+# ECSタスクロール作成
 
 (続きは随時更新します)
