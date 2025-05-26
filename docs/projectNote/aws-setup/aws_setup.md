@@ -697,6 +697,17 @@ ECSタスクに対し、
 
 Secrets Mangerの値とメタ情報の読み取り権限を設定しています。
 
-# ECSタスクロール作成
+## ECSタスクロール作成
+ECSタスクのコンテナとして動いているバックエンドAPIに必要な権限を設定します。設定内容は以下のとおり。
+
+![ECSタスクロール設定1](ecs_task_role_setting1.png)
+
+![ECSタスクロール設定2](ecs_task_role_setting2.png)
+
+`AmazonSSMManagedInstanceCore`はECSタスクのコンテナにSSHで入るために必要な権限です。本番環境では必要なときだけ付ける運用が一般的です。
+
+`CloudWatchLogsFullAccess`はECSタスクがCloud Watchログを出力するための権限です。
+
+## ECSタスク定義作成
 
 (続きは随時更新します)
