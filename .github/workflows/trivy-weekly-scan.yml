@@ -1,9 +1,9 @@
 name: Weekly Trivy Scan
 
 on:
-  schedule:
+  # schedule:
     # JST: 日曜 00:00 (= UTC: 土曜 15:00)
-    - cron: '0 15 * * 6'
+    # - cron: '0 15 * * 6'
 
   workflow_dispatch: # 手動実行を可能にする
 
